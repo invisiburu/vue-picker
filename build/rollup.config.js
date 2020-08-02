@@ -1,6 +1,8 @@
 import commonjs from '@rollup/plugin-commonjs'
-import vue from 'rollup-plugin-vue'
 import buble from '@rollup/plugin-buble'
+import vue from 'rollup-plugin-vue'
+import css from 'rollup-plugin-css-only'
+import { terser } from 'rollup-plugin-terser'
 
 export default {
   input: 'src/wrapper.js',
@@ -9,11 +11,13 @@ export default {
     exports: 'named'
   },
   plugins: [
+    css(),
     commonjs(),
     vue({
-      css: true,
+      css: false,
       compileTemplate: true,
     }),
-    buble()
+    buble(),
+    (process.env.NODE_ENV === 'production' && terser()),
   ],
 };

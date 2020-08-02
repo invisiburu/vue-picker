@@ -1,47 +1,40 @@
 export default {
   data () {
     return {
-      dropdownListeners: [],
+      ddKeySubs: [],
     }
   },
 
   created () {
-    const isDropdownControlsPresent = typeof this.toggleDropdown === 'function'
-    if (isDropdownControlsPresent) {
-      this.listenDropdown()
-    } else {
-      console.warn('key-controls requires dropdown controls to be present')
-    }
+    this.subscribeDropdown()
   },
 
   beforeDestroy () {
-    this.unListenKeys()
-    this.unListenDropdown()
+    this.unlistenKeys()
+    this.unsubscribeDropdown()
   },
 
   methods: {
-    listenDropdown () {
-      this.dropdownListeners.push(
-        this.listenDropdownShow(this.listenKeys),
-        this.listenDropdownHide(this.unListenKeys),
+    subscribeDropdown () {
+      this.ddKeySubs.push(
+        this.onDropdownShow(this.listenKeys),
+        this.onDropdownHide(this.unlistenKeys),
       )
     },
 
-    unListenDropdown () {
-      this.dropdownListeners.forEach(unlisten => unlisten())
+    unsubscribeDropdown () {
+      this.ddKeySubs.forEach(unsub => unsub())
     },
 
     listenKeys () {
       document.addEventListener('keydown', this.listenKeyDown)
     },
 
-    unListenKeys () {
+    unlistenKeys () {
       document.removeEventListener('keydown', this.listenKeyDown)
     },
 
     listenKeyDown (event) {
-      // TODO: more key events
-
       switch (event.key) {
         case 'Esc':
         case 'Escape': return this.hideDropdown()

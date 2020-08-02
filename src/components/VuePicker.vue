@@ -5,81 +5,54 @@
       'vue-picker--open': isDropdownShown,
       'vue-picker--disabled': isDisabled,
       'vue-picker--has-val': openerTxt,
-      'vue-picker--has-err': hasError,
-      'vue-picker--has-lbl': hasLabel,
     }"
   >
-    <div class="vue-picker__opener-wrp">
-      <label class="vue-picker__label">
-        <template v-if="label">
-          {{ label }}
-        </template>
-      </label>
-
-      <button
-        class="vue-picker__opener"
-        type="button"
-        @click="toggleDropdown()"
-        :disabled="isDisabled"
+    <button
+      class="vue-picker__opener"
+      type="button"
+      ref="opener"
+      @click="toggleDropdown()"
+      :disabled="isDisabled"
+    >
+      <slot
+        name="opener"
+        :opener="{ value, openerTxt }"
       >
-        <slot
-          name="opener"
-          :opener="{ value, openerTxt }"
-        >
-          {{ openerTxt || placeholder || '&nbsp;' }}
-        </slot>
+        {{ openerTxt || placeholder }}
+      </slot>
 
-        <slot name="opener-ico">
-          <i class="vue-picker__opener-ico" />
-        </slot>
-      </button>
+      <slot name="openerIco">
+        <i class="vue-picker__opener-ico" />
+      </slot>
+    </button>
 
-      <div
-        class="vue-picker__dropdown"
-        v-show="isDropdownShown"
-      >
-        <div class="vue-picker__dropdown-inner">
-          <slot />
-        </div>
-      </div>
+    <div
+      class="vue-picker__dropdown"
+      v-show="isDropdownShown"
+    >
+      <slot name="dropdownInner">
+        <slot />
+      </slot>
     </div>
 
-    <template v-if="hasError">
-      <p class="vue-picker__err-mes">
-        {{ errorMessage }}
-      </p>
-    </template>
   </div>
 </template>
 
 <script>
 import dropdownControls from '../mixins/dropdown-controls'
 import keyControls from '../mixins/key-controls'
-import disabledMixin from '../mixins/disabled'
-import { createAutofocusMixin } from '../mixins/autofocus'
+import { attrs } from '../mixins/attrs'
 
-const autofocus = createAutofocusMixin({
-  selector: '.vue-picker__opener',
-  isAutoSelect: false,
-})
-
-// TODO: search feature
-// TODO: label slot
-// TODO: error slot
-// TODO: readonly attr?
-// TODO: dropdown auto-position
-// TODO: outside click should work on the other picker click
+const attrsMixin = attrs('disabled', 'autofocus')
 
 export default {
   name: 'VuePicker',
 
-  mixins: [autofocus, disabledMixin, dropdownControls, keyControls],
+  mixins: [attrsMixin, dropdownControls, keyControls],
 
   props: {
-    value: { type: String, default: undefined },
-    errorMessage: { type: String, default: undefined },
-    label: { type: String, default: undefined },
-    placeholder: { type: String, default: undefined },
+    value: { type: String, default: '' },
+    placeholder: { type: String, default: '' },
   },
 
   provide () {
@@ -92,110 +65,68 @@ export default {
     }
   },
 
-  computed: {
-    hasError () { return Boolean(this.errorMessage) },
-    hasLabel () { return Boolean(this.label) },
+  mounted () {
+    if (this.isAutofocus) { this.$refs.opener.focus() }
   },
 
   methods: {
     selectOption (value = '', label = '') {
-      this.openerTxt = label || value || ''
+      this.openerTxt = this.placeholder
+        ? value ? label : ''
+        : label || value || ''
       if (this.value !== value) this.$emit('input', value)
       if (this.isDropdownShown) this.hideDropdown()
     },
-
-    hasSlot (name) { return Boolean(this.$slots[name]) },
   },
 }
 </script>
 
 <style lang="scss" scoped>
 .vue-picker {
-  /* stylelint-disable length-zero-no-unit */
-  --opener-bottom-border: 1px solid lightgray;
-  --opener-padding: 10px;
-  --opener-height: auto;
-  --opener-arrow-margin: 0 14px;
-  --option-side-padding: 24px;
-  --dropdown-offset: 0px;
-  --dropdown-width: 100%;
-  --dropdown-side-adjustment: var(--option-side-padding);
-  --dropdown-max-height: 300px;
+  --col: black;
+  --col-dd-bg: white;
+  --col-disabled: lightgray;
+  --col-placeholder: lightgray;
+  --col-border: gray;
 
-  width: 100%;
-  display: grid;
+  display: inline-block;
+  position: relative;
 
-  &--has-err {
-    --opener-bottom-border: 0.2rem solid tomato;
-  }
-}
-
-.vue-picker__label {
-  pointer-events: none;
-  position: absolute;
-  top: 10px;
-  left: 0;
-  transition: all 180ms;
-  color: lightgray;
-  font-size: 16px;
-
-  &--minimized {
-    top: 0;
-    color: gray;
-    font-size: 10px;
+  &--disabled {
+    --col-border: var(--col-disabled);
   }
 }
 
 .vue-picker__opener {
   background: none;
-  border: 1px solid lightgray;
+  text-align: start;
+  width: inherit;
+  border: 1px solid var(--col-border);
+  color: var(--col);
+  padding: 10px;
   display: grid;
   grid: '. ico' / 1fr auto;
   gap: 10px;
-  justify-content: space-between;
   align-items: center;
-  width: inherit;
-  height: var(--opener-height);
-  text-align: start;
-  color: #0e0e0e;
-  padding: var(--opener-padding);
-  font-weight: 500;
-  border-bottom: var(--opener-bottom-border);
 
-  &--placeholder {
-    color: lightgray;
+  &:focus {
+    outline: none;
+    border-color: var(--col);
+    box-shadow: inset 0 0 0 1px var(--col);
   }
 
   &:disabled {
-    filter: grayscale(100%);
+    color: var(--col-disabled);
     cursor: not-allowed;
   }
-}
 
-.vue-picker__opener-wrp {
-  width: inherit;
-  height: inherit;
-  position: relative;
-}
-
-.vue-picker__dropdown {
-  padding: 12px 0;
-  display: grid;
-  grid: auto-flow auto / 1fr;
-  background: white;
-  position: absolute;
-  width: 100%;
-  z-index: 1;
-}
-
-.vue-picker__dropdown-inner {
-  max-height: var(--dropdown-max-height);
-  overflow-y: auto;
+  .vue-picker:not(.vue-picker--has-val) > & {
+    color: var(--col-placeholder);
+  }
 }
 
 .vue-picker__opener-ico {
   grid-area: ico;
-  user-select: none;
   pointer-events: none;
 
   &:after {
@@ -203,14 +134,32 @@ export default {
     display: block;
     width: 0.5em;
     height: 0.5em;
-    border: solid gray;
+    border: solid var(--col-border);
     border-width: 0 2px 2px 0;
     transform: translate(0, -25%) rotate(45deg);
   }
 }
 
-.vue-picker__err-mes {
-  color: tomato;
-  margin-top: 10px;
+.vue-picker__dropdown {
+  background: var(--col-dd-bg);
+  border: 1px solid var(--col-border);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  max-height: 240px;
+  padding: 8px 0;
+  overflow-y: auto;
+  display: grid;
+  grid: auto-flow auto / auto;
+  gap: 8px;
+
+  &:after {
+    // fix bot padding render on scroll
+    content: '';
+    height: 1px;
+    margin-top: -1px;
+  }
 }
 </style>

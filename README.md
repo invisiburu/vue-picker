@@ -1,5 +1,16 @@
 # vue-picker
 
+## TODO
+- The README.md
+- More keyboard events
+- Outside label[for=""] support
+- Animation support
+- Search feature
+- Dropdown position switch if does not fit the screen
+- Readonly attr - ?
+- iOS, Android full screen style - ?
+
+
 ## Project setup
 ```
 npm install

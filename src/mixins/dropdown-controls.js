@@ -1,17 +1,17 @@
-import { handleClickOutside } from '../helpers/outer-click'
+import { onOuterClick } from '../helpers/outer-click'
 
 export default {
   data () {
     return {
       isDropdownShown: false,
-      unListenOutsideClick: () => { },
-      onDropdownShowListeners: [],
-      onDropdownHideListeners: [],
+      unlistenOutsideClick: () => { },
+      onDdShowSubs: [],
+      onDdHideSubs: [],
     }
   },
 
   beforeDestroy () {
-    this.unListenOutsideClick()
+    this.unlistenOutsideClick()
   },
 
   methods: {
@@ -26,40 +26,31 @@ export default {
     showDropdown () {
       this.listenOutsideClick()
       this.isDropdownShown = true
-      this.onDropdownShowListeners.forEach(cb => cb())
+      this.onDdShowSubs.forEach(cb => cb())
     },
 
     hideDropdown () {
+      this.unlistenOutsideClick()
       this.isDropdownShown = false
-      this.onDropdownHideListeners.forEach(cb => cb())
+      this.onDdHideSubs.forEach(cb => cb())
     },
 
     listenOutsideClick () {
-      const selector = `.${this.$el.classList[0]}`
-      const destructor = handleClickOutside(selector, this.hideDropdown)
-      this.unListenOutsideClick = destructor
+      this.unlistenOutsideClick = onOuterClick(this.$el, this.hideDropdown)
     },
 
-    listenDropdownShow (callback) {
-      this.onDropdownShowListeners.push(callback)
-
-      const unListen = () => {
-        this.onDropdownShowListeners =
-          this.onDropdownShowListeners.filter(el => el !== callback)
+    onDropdownShow (cb) {
+      this.onDdShowSubs.push(cb)
+      return () => {
+        this.onDdShowSubs = this.onDdShowSubs.filter(el => el !== cb)
       }
-
-      return unListen
     },
 
-    listenDropdownHide (callback) {
-      this.onDropdownHideListeners.push(callback)
-
-      const unListen = () => {
-        this.onDropdownHideListeners =
-          this.onDropdownHideListeners.filter(el => el !== callback)
+    onDropdownHide (cb) {
+      this.onDdHideSubs.push(cb)
+      return () => {
+        this.onDdHideSubs = this.onDdHideSubs.filter(el => el !== cb)
       }
-
-      return unListen
     },
   },
 }

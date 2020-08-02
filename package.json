@@ -29,7 +29,10 @@
     "rules": {},
     "root": true
   },
-  "eslintIgnore": ["dist/", "node_modules/"],
+  "eslintIgnore": [
+    "dist/",
+    "node_modules/"
+  ],
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-commonjs": "^11.1.0",
@@ -40,6 +43,8 @@
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "rollup": "^1.17.0",
+    "rollup-plugin-css-only": "^2.1.0",
+    "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-vue": "^5.0.1",
     "vue": "^2.6.11",
     "vue-template-compiler": "^2.6.11"

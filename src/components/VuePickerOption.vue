@@ -11,23 +11,27 @@
 </template>
 
 <script>
-import disabledMixin from '../mixins/disabled'
+import { attrs } from '../mixins/attrs'
+
+const attrsMixin = attrs('disabled')
 
 export default {
   name: 'VuePickerOption',
 
-  mixins: [disabledMixin],
+  mixins: [attrsMixin],
 
   props: {
-    value: { type: String, default: undefined },
-    text: { type: String, default: undefined },
+    value: { type: String, default: '' },
+    text: { type: String, default: '' },
   },
 
   inject: { picker: 'pickerContext' },
 
   computed: {
     isSelected () {
-      return this.picker.value === this.value
+      return this.picker.value
+        ? this.picker.value === this.value
+        : !this.picker.placeholder  && this.picker.value === this.value
     },
 
     slotTxt () {
@@ -63,18 +67,19 @@ export default {
   text-align: start;
   width: 100%;
   background: none;
-  border: 1px lightgray solid;
+  border: none;
+  padding: 4px 8px;
 
   &--cur {
     font-weight: bold;
   }
 
   &:disabled {
-    color: #cecece;
+    color: var(--col-disabled);
   }
 
   &:hover:not(:disabled) {
-    background-color: #bebebe;
+    background-color: lightgray;
   }
 }
 </style>
