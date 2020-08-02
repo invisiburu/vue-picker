@@ -1,4 +1,4 @@
-import { handleClickOutside } from './outer-click'
+import { handleClickOutside } from '../helpers/outer-click'
 
 export default {
   data () {

@@ -1,8 +1,8 @@
 <template>
   <button
-    class="picker-option app__p2"
+    class="vue-picker-option"
     type="button"
-    :class="{ 'picker-option--selected': isSelected }"
+    :class="{ 'vue-picker-option--cur': isSelected }"
     @click="selectMyValue()"
     :disabled="isDisabled"
   >
@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import disabledMixin from './disabled'
+import disabledMixin from '../mixins/disabled'
 
 export default {
-  name: 'picker-option',
+  name: 'VuePickerOption',
 
   mixins: [disabledMixin],
 
@@ -58,14 +58,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.picker-option {
+.vue-picker-option {
   display: block;
   text-align: start;
   width: 100%;
   background: none;
   border: 1px lightgray solid;
 
-  &--selected {
+  &--cur {
     font-weight: bold;
   }
 

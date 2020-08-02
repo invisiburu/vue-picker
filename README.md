@@ -1,4 +1,4 @@
-# picker
+# vue-picker
 
 ## Project setup
 ```

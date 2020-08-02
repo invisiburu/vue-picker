@@ -1,23 +1,23 @@
 <template>
   <div
-    class="picker"
+    class="vue-picker"
     :class="{
-      'picker--open': isDropdownShown,
-      'picker--disabled': isDisabled,
-      'picker--has-val': openerTxt,
-      'picker--has-err': hasError,
-      'picker--has-lbl': hasLabel,
+      'vue-picker--open': isDropdownShown,
+      'vue-picker--disabled': isDisabled,
+      'vue-picker--has-val': openerTxt,
+      'vue-picker--has-err': hasError,
+      'vue-picker--has-lbl': hasLabel,
     }"
   >
-    <div class="picker__opener-wrp">
-      <label class="picker__label">
+    <div class="vue-picker__opener-wrp">
+      <label class="vue-picker__label">
         <template v-if="label">
           {{ label }}
         </template>
       </label>
 
       <button
-        class="picker__opener"
+        class="vue-picker__opener"
         type="button"
         @click="toggleDropdown()"
         :disabled="isDisabled"
@@ -30,22 +30,22 @@
         </slot>
 
         <slot name="opener-ico">
-          <i class="picker__opener-ico" />
+          <i class="vue-picker__opener-ico" />
         </slot>
       </button>
 
       <div
-        class="picker__dropdown"
+        class="vue-picker__dropdown"
         v-show="isDropdownShown"
       >
-        <div class="picker__dropdown-inner">
+        <div class="vue-picker__dropdown-inner">
           <slot />
         </div>
       </div>
     </div>
 
     <template v-if="hasError">
-      <p class="picker__err-mes">
+      <p class="vue-picker__err-mes">
         {{ errorMessage }}
       </p>
     </template>
@@ -53,13 +53,13 @@
 </template>
 
 <script>
-import dropdownControls from './dropdown-controls'
-import keyControls from './key-controls'
-import disabledMixin from './disabled'
-import { createAutofocusMixin } from './autofocus'
+import dropdownControls from '../mixins/dropdown-controls'
+import keyControls from '../mixins/key-controls'
+import disabledMixin from '../mixins/disabled'
+import { createAutofocusMixin } from '../mixins/autofocus'
 
 const autofocus = createAutofocusMixin({
-  selector: '.picker__opener',
+  selector: '.vue-picker__opener',
   isAutoSelect: false,
 })
 
@@ -71,7 +71,7 @@ const autofocus = createAutofocusMixin({
 // TODO: outside click should work on the other picker click
 
 export default {
-  name: 'picker',
+  name: 'VuePicker',
 
   mixins: [autofocus, disabledMixin, dropdownControls, keyControls],
 
@@ -110,7 +110,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.picker {
+.vue-picker {
   /* stylelint-disable length-zero-no-unit */
   --opener-bottom-border: 1px solid lightgray;
   --opener-padding: 10px;
@@ -130,7 +130,7 @@ export default {
   }
 }
 
-.picker__label {
+.vue-picker__label {
   pointer-events: none;
   position: absolute;
   top: 10px;
@@ -146,7 +146,7 @@ export default {
   }
 }
 
-.picker__opener {
+.vue-picker__opener {
   background: none;
   border: 1px solid lightgray;
   display: grid;
@@ -172,13 +172,13 @@ export default {
   }
 }
 
-.picker__opener-wrp {
+.vue-picker__opener-wrp {
   width: inherit;
   height: inherit;
   position: relative;
 }
 
-.picker__dropdown {
+.vue-picker__dropdown {
   padding: 12px 0;
   display: grid;
   grid: auto-flow auto / 1fr;
@@ -188,12 +188,12 @@ export default {
   z-index: 1;
 }
 
-.picker__dropdown-inner {
+.vue-picker__dropdown-inner {
   max-height: var(--dropdown-max-height);
   overflow-y: auto;
 }
 
-.picker__opener-ico {
+.vue-picker__opener-ico {
   grid-area: ico;
   user-select: none;
   pointer-events: none;
@@ -209,7 +209,7 @@ export default {
   }
 }
 
-.picker__err-mes {
+.vue-picker__err-mes {
   color: tomato;
   margin-top: 10px;
 }

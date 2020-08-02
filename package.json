@@ -1,44 +1,47 @@
 {
-  "name": "picker",
+  "name": "@max-nes/vue-picker",
   "version": "0.1.0",
   "private": true,
+  "main": "dist/vue-picker.umd.js",
+  "unpkg": "dist/vue-picker.min.js",
+  "module": "dist/vue-picker.esm.js",
+  "browser": {
+    "./sfc": "src/index.js"
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "npm run build:umd & npm run build:es & npm run build:unpkg",
+    "build:es": "rollup --config build/rollup.config.js --format es --file dist/vue-picker.esm.js",
+    "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/vue-picker.umd.js",
+    "build:unpkg": "rollup --config build/rollup.config.js --format iife --file dist/vue-picker.min.js",
     "lint": "vue-cli-service lint"
   },
-  "dependencies": {
-    "core-js": "^3.6.5",
-    "vue": "^2.6.11"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.4.0",
-    "@vue/cli-plugin-eslint": "~4.4.0",
-    "@vue/cli-service": "~4.4.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "sass": "^1.26.10",
-    "sass-loader": "^9.0.2",
-    "vue-template-compiler": "^2.6.11"
-  },
   "eslintConfig": {
-    "root": true,
     "env": {
       "node": true
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
     },
     "extends": [
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
+    "rules": {},
+    "root": true
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+  "eslintIgnore": ["dist/", "node_modules/"],
+  "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@vue/cli-plugin-eslint": "~4.4.0",
+    "@vue/cli-service": "~4.4.0",
+    "babel-eslint": "^10.1.0",
+    "core-js": "^3.6.5",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "rollup": "^1.17.0",
+    "rollup-plugin-vue": "^5.0.1",
+    "vue": "^2.6.11",
+    "vue-template-compiler": "^2.6.11"
+  }
 }
