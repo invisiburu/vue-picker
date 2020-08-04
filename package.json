@@ -1,5 +1,5 @@
 {
-  "name": "@max-nes/vue-picker",
+  "name": "@invisiburu/vue-picker",
   "version": "0.1.0",
   "private": true,
   "main": "dist/vue-picker.umd.js",
