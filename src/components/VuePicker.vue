@@ -16,7 +16,7 @@
     >
       <slot
         name="opener"
-        :opener="{ value, openerTxt }"
+        :opener="{ value, text: openerTxt }"
       >
         {{ openerTxt || placeholder }}
       </slot>
