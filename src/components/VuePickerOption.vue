@@ -43,19 +43,13 @@ export default {
     }
   },
 
-  watch: {
-    'picker.value': {
-      immediate: true,
-      handler (newV) {
-        if (newV !== this.value || this.picker.openerTxt === this.optTxt) return
-        this.selectMyValue()
-      },
-    },
+  created () {
+    this.picker.regOpt(this)
   },
 
   methods: {
     selectMyValue () {
-      this.picker.selectOption(this.value, this.optTxt)
+      this.picker.selectOption(this.value)
     },
   },
 }

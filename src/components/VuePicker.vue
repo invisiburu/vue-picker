@@ -4,7 +4,7 @@
     :class="{
       'vue-picker--open': isDropdownShown,
       'vue-picker--disabled': isDisabled,
-      'vue-picker--has-val': openerTxt,
+      'vue-picker--has-val': value,
     }"
   >
     <button
@@ -61,21 +61,37 @@ export default {
 
   data () {
     return {
-      openerTxt: '',
+      curOptIdx: -1,
+      opts: [],
     }
+  },
+
+  computed: {
+    curOpt () { return this.opts[this.curOptIdx] },
+    curOptTxt () { return this.curOpt ? this.curOpt.optTxt : '' },
+    openerTxt () { return this.curOptTxt || this.placeholder || this.value || '' },
+  },
+
+  watch: {
+    value () {
+      this.selectOption(this.value)
+    },
   },
 
   mounted () {
     if (this.isAutofocus) { this.$refs.opener.focus() }
+    if (this.value) { this.selectOption(this.value) }
   },
 
   methods: {
-    selectOption (value = '', label = '') {
-      this.openerTxt = this.placeholder
-        ? value ? label : ''
-        : label || value || ''
+    selectOption (value = '') {
+      this.curOptIdx = this.opts.findIndex(el => el.value === value)
       if (this.value !== value) this.$emit('input', value)
       if (this.isDropdownShown) this.hideDropdown()
+    },
+
+    regOpt (opt) {
+      this.opts.push(opt)
     },
   },
 }
