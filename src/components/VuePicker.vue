@@ -116,7 +116,7 @@ export default {
     },
 
     selectPrev () {
-      this.selectNext(-1)
+      this.selectNext(-1, this.curOptIdx < 0 ? this.opts.length : undefined)
     },
 
     regOpt (opt) {
