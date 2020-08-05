@@ -18,10 +18,8 @@ export default {
     toggleDropdown () {
       if (this.isDropdownShown) {
         this.hideDropdown()
-        this.$refs.opener.focus()
       } else {
         this.showDropdown()
-        this.$refs.opener.blur()
       }
     },
 
@@ -29,7 +27,7 @@ export default {
       this.listenOuterClick()
       this.isDropdownShown = true
       this.onDdShowSubs.forEach(cb => cb())
-      this.$refs.opener.blur()
+      if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
     },
 
     hideDropdown (willFocus = true) {

@@ -93,9 +93,7 @@ export default {
   methods: {
     selectByIdx (idx) {
       const opt = this.opts[idx]
-      if (!opt) return
-
-      opt.$el.scrollIntoView(this.curOptIdx < idx)
+      opt.$el.focus()
       this.curOptIdx = idx
       this.$emit('input', opt.value)
     },
@@ -103,15 +101,22 @@ export default {
     selectByValue (value = '') {
       const idx = this.opts.findIndex(el => el.value === value)
       if (this.curOptIdx === idx) return
+
+      const opt = this.opts[idx]
+      if (!opt || opt.isDisabled) return
       this.selectByIdx(idx)
     },
 
-    selectNext () {
-      this.selectByIdx(this.curOptIdx + 1)
+    selectNext (offset = 1, curIdx = this.curOptIdx) {
+      const nextIdx = curIdx  + offset
+      const nextOpt = this.opts[nextIdx]
+      if (!nextOpt) return
+      if (nextOpt.isDisabled) { return this.selectNext(offset, nextIdx) }
+      this.selectByIdx(nextIdx)
     },
 
     selectPrev () {
-      this.selectByIdx(this.curOptIdx - 1)
+      this.selectNext(-1)
     },
 
     regOpt (opt) {
