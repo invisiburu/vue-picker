@@ -49,7 +49,9 @@ export default {
 
   methods: {
     selectMyValue () {
-      this.picker.selectOption(this.value)
+      if (this.value === this.picker.value) return
+      this.picker.selectByValue(this.value)
+      this.picker.hideDropdown()
     },
   },
 }

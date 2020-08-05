@@ -4,39 +4,47 @@ export default {
   data () {
     return {
       isDropdownShown: false,
-      unlistenOutsideClick: () => { },
+      unlistenOuterClick: () => { },
       onDdShowSubs: [],
       onDdHideSubs: [],
     }
   },
 
   beforeDestroy () {
-    this.unlistenOutsideClick()
+    this.unlistenOuterClick()
   },
 
   methods: {
     toggleDropdown () {
       if (this.isDropdownShown) {
         this.hideDropdown()
+        this.$refs.opener.focus()
       } else {
         this.showDropdown()
+        this.$refs.opener.blur()
       }
     },
 
     showDropdown () {
-      this.listenOutsideClick()
+      this.listenOuterClick()
       this.isDropdownShown = true
       this.onDdShowSubs.forEach(cb => cb())
+      this.$refs.opener.blur()
     },
 
-    hideDropdown () {
-      this.unlistenOutsideClick()
+    hideDropdown (willFocus = true) {
+      this.unlistenOuterClick()
       this.isDropdownShown = false
       this.onDdHideSubs.forEach(cb => cb())
+      if (willFocus) this.$refs.opener.focus()
     },
 
-    listenOutsideClick () {
-      this.unlistenOutsideClick = onOuterClick(this.$el, this.hideDropdown)
+    hideDropdownNoFocus() {
+      this.hideDropdown(false)
+    },
+
+    listenOuterClick () {
+      this.unlistenOuterClick = onOuterClick(this.$el, this.hideDropdownNoFocus)
     },
 
     onDropdownShow (cb) {

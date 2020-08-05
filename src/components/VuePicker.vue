@@ -12,13 +12,17 @@
       type="button"
       ref="opener"
       @click="toggleDropdown()"
+      @keydown.up.alt.stop.prevent="toggleDropdown()"
+      @keydown.up.exact.stop.prevent="selectPrev()"
+      @keydown.down.alt.stop.prevent="toggleDropdown()"
+      @keydown.down.exact.stop.prevent="selectNext()"
       :disabled="isDisabled"
     >
       <slot
         name="opener"
         :opener="{ value, text: openerTxt }"
       >
-        {{ openerTxt || placeholder }}
+        {{ openerTxt }}
       </slot>
 
       <slot name="openerIco">
@@ -68,26 +72,46 @@ export default {
 
   computed: {
     curOpt () { return this.opts[this.curOptIdx] },
-    curOptTxt () { return this.curOpt ? this.curOpt.optTxt : '' },
-    openerTxt () { return this.curOptTxt || this.placeholder || this.value || '' },
+    openerTxt () {
+      if (!this.value) {
+        if (this.placeholder) return this.placeholder
+        if (this.curOpt) return this.curOpt.optTxt
+      }
+      return this.curOpt && this.curOpt.optTxt
+    },
   },
 
   watch: {
-    value () {
-      this.selectOption(this.value)
-    },
+    value (nV, oV) { (nV !== oV) && this.selectByValue(this.value) },
   },
 
   mounted () {
     if (this.isAutofocus) { this.$refs.opener.focus() }
-    if (this.value) { this.selectOption(this.value) }
+    if (this.value) { this.selectByValue(this.value) }
   },
 
   methods: {
-    selectOption (value = '') {
-      this.curOptIdx = this.opts.findIndex(el => el.value === value)
-      if (this.value !== value) this.$emit('input', value)
-      if (this.isDropdownShown) this.hideDropdown()
+    selectByIdx (idx) {
+      const opt = this.opts[idx]
+      if (!opt) return
+
+      opt.$el.scrollIntoView(this.curOptIdx < idx)
+      this.curOptIdx = idx
+      this.$emit('input', opt.value)
+    },
+
+    selectByValue (value = '') {
+      const idx = this.opts.findIndex(el => el.value === value)
+      if (this.curOptIdx === idx) return
+      this.selectByIdx(idx)
+    },
+
+    selectNext () {
+      this.selectByIdx(this.curOptIdx + 1)
+    },
+
+    selectPrev () {
+      this.selectByIdx(this.curOptIdx - 1)
     },
 
     regOpt (opt) {
