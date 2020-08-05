@@ -2,6 +2,7 @@
 
 ## TODO
 - The README.md
+- Emit input on dropdown close
 - Search feature
 - handle keys: Home, End, Page down, Page up
 - Outside label[for=""] support
