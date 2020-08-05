@@ -3,6 +3,7 @@
 ## TODO
 - The README.md
 - Search feature
+- handle keys: Home, End, Page down, Page up
 - Outside label[for=""] support
 - Animation support
 - Dropdown position switch if does not fit the screen
