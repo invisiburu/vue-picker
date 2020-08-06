@@ -32,13 +32,8 @@ export default {
   inject: { picker: 'pickerContext' },
 
   computed: {
-    slotTxt () {
-      return (this.$slots.default || []).map(el => el.text).join(' ')
-    },
-
-    optTxt () {
-      return this.text || this.slotTxt || this.value
-    }
+    optHtml () { return this.text || this.$el.innerHTML || this.value },
+    optTxt () { return this.text || this.$el.innerText || this.value },
   },
 
   created () {
@@ -47,15 +42,14 @@ export default {
 
   methods: {
     selectMyValue () {
-      if (this.value !== this.picker.value)
-        this.picker.selectByValue(this.value)
+      this.picker.selectByValue(this.value)
       this.picker.hideDropdown()
     },
   },
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .vue-picker-option {
   display: block;
   text-align: start;

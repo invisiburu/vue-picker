@@ -22,9 +22,12 @@
     >
       <slot
         name="opener"
-        :opener="{ value, text: openerTxt }"
+        :opener="{ value, text: openerTxt, opt: curOpt }"
       >
-        {{ openerTxt }}
+        <span
+          class="vue-picker__opener-txt"
+          v-html="openerHtml"
+        />
       </slot>
 
       <slot name="openerIco">
@@ -74,14 +77,10 @@ export default {
 
   computed: {
     curOpt () { return this.opts[this.curOptIdx] },
-    curOptVal () { return this.curOpt ? this.curOpt.value : undefined },
-    openerTxt () {
-      if (!this.value) {
-        if (this.placeholder) return this.placeholder
-        if (this.curOpt) return this.curOpt.optTxt
-      }
-      return this.curOpt && this.curOpt.optTxt
-    },
+    curOptVal () { return (this.curOpt || {}).value },
+    ph () { return !this.value && this.placeholder },
+    openerTxt () { return this.ph || (this.curOpt || {}).optTxt },
+    openerHtml () { return this.ph || (this.curOpt || {}).optHtml },
   },
 
   watch: {
@@ -147,7 +146,7 @@ export default {
     },
 
     emitCurOptVal (val = this.curOptVal) {
-      if (val === this.value || typeof val !== 'string') return
+      if (typeof val !== 'string') return
       this.$emit('input', val)
     },
 
@@ -158,7 +157,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .vue-picker {
   --col: black;
   --col-dd-bg: white;
