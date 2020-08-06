@@ -7,11 +7,13 @@ export default {
       unlistenOuterClick: () => { },
       onDdShowSubs: [],
       onDdHideSubs: [],
+      unsubs: [],
     }
   },
 
   beforeDestroy () {
     this.unlistenOuterClick()
+    this.unsubs.forEach(unsub => unsub())
   },
 
   methods: {
@@ -27,36 +29,34 @@ export default {
       this.listenOuterClick()
       this.isDropdownShown = true
       this.onDdShowSubs.forEach(cb => cb())
-      if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
     },
 
-    hideDropdown (willFocus = true) {
+    hideDropdown (isOuterClick = false) {
       this.unlistenOuterClick()
       this.isDropdownShown = false
-      this.onDdHideSubs.forEach(cb => cb())
-      if (willFocus) this.$refs.opener.focus()
+      this.onDdHideSubs.forEach(cb => cb(isOuterClick))
     },
 
-    hideDropdownNoFocus() {
-      this.hideDropdown(false)
+    hideDropdownOuter() {
+      this.hideDropdown(true)
     },
 
     listenOuterClick () {
-      this.unlistenOuterClick = onOuterClick(this.$el, this.hideDropdownNoFocus)
+      this.unlistenOuterClick = onOuterClick(this.$el, this.hideDropdownOuter)
     },
 
     onDropdownShow (cb) {
       this.onDdShowSubs.push(cb)
-      return () => {
+      this.unsubs.push(() => {
         this.onDdShowSubs = this.onDdShowSubs.filter(el => el !== cb)
-      }
+      })
     },
 
     onDropdownHide (cb) {
       this.onDdHideSubs.push(cb)
-      return () => {
+      this.unsubs.push(() => {
         this.onDdHideSubs = this.onDdHideSubs.filter(el => el !== cb)
-      }
+      })
     },
   },
 }

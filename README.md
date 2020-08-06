@@ -2,9 +2,8 @@
 
 ## TODO
 - The README.md
-- Emit input on dropdown close
 - Search feature
-- handle keys: Home, End, Page down, Page up
+- handle keys: Page down, Page up
 - Outside label[for=""] support
 - Animation support
 - Dropdown position switch if does not fit the screen

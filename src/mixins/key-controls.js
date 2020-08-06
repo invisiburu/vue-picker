@@ -6,26 +6,15 @@ export default {
   },
 
   created () {
-    this.subscribeDropdown()
+    this.onDropdownShow(this.listenKeys)
+    this.onDropdownHide(this.unlistenKeys)
   },
 
   beforeDestroy () {
     this.unlistenKeys()
-    this.unsubscribeDropdown()
   },
 
   methods: {
-    subscribeDropdown () {
-      this.ddKeySubs.push(
-        this.onDropdownShow(this.listenKeys),
-        this.onDropdownHide(this.unlistenKeys),
-      )
-    },
-
-    unsubscribeDropdown () {
-      this.ddKeySubs.forEach(unsub => unsub())
-    },
-
     listenKeys () {
       document.addEventListener('keydown', this.listenKeyDown)
     },
@@ -59,6 +48,16 @@ export default {
           if (event.altKey)
             return this.toggleDropdown()
           return this.selectNext()
+
+        case 'Home':
+          event.preventDefault()
+          event.stopPropagation()
+          return this.selectFirst()
+
+        case 'End':
+          event.preventDefault()
+          event.stopPropagation()
+          return this.selectLast()
 
         default: break
       }

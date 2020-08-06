@@ -4,7 +4,7 @@
     :class="{
       'vue-picker--open': isDropdownShown,
       'vue-picker--disabled': isDisabled,
-      'vue-picker--has-val': value,
+      'vue-picker--has-val': curOptVal,
     }"
   >
     <button
@@ -16,6 +16,8 @@
       @keydown.up.exact.stop.prevent="selectPrev()"
       @keydown.down.alt.stop.prevent="toggleDropdown()"
       @keydown.down.exact.stop.prevent="selectNext()"
+      @keydown.home.stop.prevent="selectFirst()"
+      @keydown.end.stop.prevent="selectLast()"
       :disabled="isDisabled"
     >
       <slot
@@ -72,6 +74,7 @@ export default {
 
   computed: {
     curOpt () { return this.opts[this.curOptIdx] },
+    curOptVal () { return this.curOpt ? this.curOpt.value : undefined },
     openerTxt () {
       if (!this.value) {
         if (this.placeholder) return this.placeholder
@@ -86,16 +89,31 @@ export default {
   },
 
   mounted () {
+    this.onDropdownShow(() => {
+      if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
+      else this.$refs.opener.blur()
+    })
+
+    this.onDropdownHide(isOuterClick => {
+      if (!isOuterClick) this.$refs.opener.focus()
+      this.emitCurOptVal()
+    })
+
     if (this.isAutofocus) { this.$refs.opener.focus() }
     if (this.value) { this.selectByValue(this.value) }
   },
 
   methods: {
     selectByIdx (idx) {
-      const opt = this.opts[idx]
-      opt.$el.focus()
+      if (this.curOpt) this.curOpt.isSelected = false
+
       this.curOptIdx = idx
-      this.$emit('input', opt.value)
+
+      this.curOpt.$el.focus()
+      this.curOpt.isSelected = true
+
+      if (this.isDropdownShown) return
+      this.emitCurOptVal(this.curOpt.value)
     },
 
     selectByValue (value = '') {
@@ -107,16 +125,30 @@ export default {
       this.selectByIdx(idx)
     },
 
-    selectNext (offset = 1, curIdx = this.curOptIdx) {
-      const nextIdx = curIdx  + offset
+    selectNext (offset = 1, startIdx = this.curOptIdx) {
+      const nextIdx = startIdx + offset
       const nextOpt = this.opts[nextIdx]
       if (!nextOpt) return
-      if (nextOpt.isDisabled) { return this.selectNext(offset, nextIdx) }
+      if (nextOpt.isDisabled) return this.selectNext(offset, nextIdx)
       this.selectByIdx(nextIdx)
     },
 
     selectPrev () {
-      this.selectNext(-1, this.curOptIdx < 0 ? this.opts.length : undefined)
+      if (this.curOptIdx < 0) return this.selectLast()
+      this.selectNext(-1)
+    },
+
+    selectFirst () {
+      this.selectNext(1, -1)
+    },
+
+    selectLast () {
+      this.selectNext(-1, this.opts.length)
+    },
+
+    emitCurOptVal (val = this.curOptVal) {
+      if (val === this.value || typeof val !== 'string') return
+      this.$emit('input', val)
     },
 
     regOpt (opt) {

@@ -25,15 +25,13 @@ export default {
     text: { type: String, default: '' },
   },
 
+  data () {
+    return { isSelected: false }
+  },
+
   inject: { picker: 'pickerContext' },
 
   computed: {
-    isSelected () {
-      return this.picker.value
-        ? this.picker.value === this.value
-        : !this.picker.placeholder  && this.picker.value === this.value
-    },
-
     slotTxt () {
       return (this.$slots.default || []).map(el => el.text).join(' ')
     },
@@ -49,8 +47,8 @@ export default {
 
   methods: {
     selectMyValue () {
-      if (this.value === this.picker.value) return
-      this.picker.selectByValue(this.value)
+      if (this.value !== this.picker.value)
+        this.picker.selectByValue(this.value)
       this.picker.hideDropdown()
     },
   },
