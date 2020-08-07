@@ -1,7 +1,12 @@
 # vue-picker
 
-A picker that (mostly) behaves like native `<select>` but accepts custom
+A native-like select field, but better.
+
+Mostly behaves like native `<select>` but accepts custom
 markup for the options and the opener button.
+
+The options can be navigated from the keyboard, the opener text can be easily
+customized, no annoying "options as arrays" props.
 
 ## Installation
 In browser:
@@ -43,13 +48,6 @@ Vue.component('VuePickerOption', VuePickerOption)
 </vue-picker>
 ```
 
-<!-- - The options can be navigated or toggled from the keyboard.
-- Provide `text` attr to an option to override the result text in the opener.  
-- Both `VuePicker` and `VuePickerOption` accept `disabled` attribute.
-- Provide `autofocus` attribute to the `VuePicker` to focus the component
-  on mount.
-- Provide `placeholder` attribute to the `VuePicker` to override -->
-
 ### Custom options:
 ```html
 <template>
@@ -85,9 +83,6 @@ Vue.component('VuePickerOption', VuePickerOption)
 }
 </style>
 ```
-- The opener displays origin markup of the selected option unless `text` attr
-  provided.
--
 
 ### Custom opener:
 ```html
@@ -115,12 +110,10 @@ Vue.component('VuePickerOption', VuePickerOption)
   values that do not exist within provided options.
 - `placeholder` - a text to show when `value` is null, undefined or an
   empty string.
-
 #### Emitted events:
 - `input` - an option selected. Carries the new value to assign.
 - `open` - dropdown open.
 - `close` - dropdown closed. Carries `true` if closed by the outer click.
-
 #### Slots:
 - `default` - a picker option. Should be a `<VuePickerOption>`.
 - `opener` - override the displayed opener text.
