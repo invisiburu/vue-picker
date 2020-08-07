@@ -1,7 +1,23 @@
 {
   "name": "@invisiburu/vue-picker",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "private": false,
+  "keywords": [
+    "vue",
+    "select",
+    "picker"
+  ],
+  "homepage": "https://github.com/invisiburu/vue-picker",
+  "bugs": {
+    "url": "https://github.com/invisiburu/vue-picker/issues",
+    "email": "maxym.nes.dev@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/invisiburu/vue-picker.git"
+  },
+  "license": "MIT",
+  "author": "Maksym Nesterov <maxym.nes.dev@gmail.com> (https://github.com/invisiburu)",
   "main": "dist/vue-picker.umd.js",
   "unpkg": "dist/vue-picker.min.js",
   "module": "dist/vue-picker.esm.js",
@@ -48,5 +64,9 @@
     "rollup-plugin-vue": "^5.0.1",
     "vue": "^2.6.11",
     "vue-template-compiler": "^2.6.11"
+  },
+  "peerDependencies": {
+    "core-js": "^3.6.5",
+    "vue": "^2.6.11"
   }
 }

@@ -157,6 +157,7 @@ slot.
 
 ## TODO
 - JSDoc generated docs
+- Unit tests
 - Search
 - Handle keys: Page down, Page up
 - Animation support
