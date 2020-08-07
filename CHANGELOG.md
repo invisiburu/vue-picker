@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.1] - 2020-08-07
+## [1.0.2] - 2020-08-08
+### Fixed
+- Fix CHANGELOG.md
+
+## [1.0.1] - 2020-08-08
 ### Changed
 - Updated README.md
 
@@ -17,5 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README.md
 - LICENSE
 
+[1.0.2]: https://github.com/invisiburu/vue-picker/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/invisiburu/vue-picker/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/invisiburu/vue-picker/releases/tag/v1.0.0
 
