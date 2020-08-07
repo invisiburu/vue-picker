@@ -91,11 +91,13 @@ export default {
     this.onDropdownShow(() => {
       if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
       else this.$refs.opener.blur()
+      this.$emit('open')
     })
 
     this.onDropdownHide(isOuterClick => {
       if (!isOuterClick) this.$refs.opener.focus()
       this.emitCurOptVal()
+      this.$emit('close', isOuterClick)
     })
 
     if (this.isAutofocus) { this.$refs.opener.focus() }
