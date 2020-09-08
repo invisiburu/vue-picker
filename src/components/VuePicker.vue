@@ -229,15 +229,6 @@ export default {
   max-height: 240px;
   padding: 8px 0;
   overflow-y: auto;
-  display: grid;
-  grid: auto-flow auto / auto;
-  gap: 8px;
-
-  &:after {
-    // fix bot padding render on scroll
-    content: '';
-    height: 1px;
-    margin-top: -1px;
-  }
+  display: inline-block;
 }
 </style>

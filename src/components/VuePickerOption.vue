@@ -56,7 +56,7 @@ export default {
   width: 100%;
   background: none;
   border: none;
-  padding: 4px 8px;
+  padding: 8px;
 
   &--cur {
     font-weight: bold;

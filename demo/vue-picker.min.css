@@ -1,0 +1,82 @@
+.vue-picker {
+  --col: black;
+  --col-dd-bg: white;
+  --col-disabled: lightgray;
+  --col-placeholder: lightgray;
+  --col-border: gray;
+  display: inline-block;
+  position: relative;
+}
+.vue-picker--disabled {
+  --col-border: var(--col-disabled);
+}
+.vue-picker__opener {
+  background: none;
+  text-align: start;
+  width: inherit;
+  border: 1px solid var(--col-border);
+  color: var(--col);
+  padding: 10px;
+  display: grid;
+  grid: ". ico"/1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.vue-picker__opener:focus {
+  outline: none;
+  border-color: var(--col);
+  box-shadow: inset 0 0 0 1px var(--col);
+}
+.vue-picker__opener:disabled {
+  color: var(--col-disabled);
+  cursor: not-allowed;
+}
+.vue-picker:not(.vue-picker--has-val) > .vue-picker__opener {
+  color: var(--col-placeholder);
+}
+.vue-picker__opener-ico {
+  grid-area: ico;
+  pointer-events: none;
+}
+.vue-picker__opener-ico:after {
+  content: "";
+  display: block;
+  width: 0.5em;
+  height: 0.5em;
+  border: solid var(--col-border);
+  border-width: 0 2px 2px 0;
+  transform: translate(0, -25%) rotate(45deg);
+}
+.vue-picker__dropdown {
+  background: var(--col-dd-bg);
+  border: 1px solid var(--col-border);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  max-height: 240px;
+  padding: 8px 0;
+  overflow-y: auto;
+  display: inline-block;
+}
+
+/*# sourceMappingURL=VuePicker.vue.map */.vue-picker-option {
+  display: block;
+  text-align: start;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 8px;
+}
+.vue-picker-option--cur {
+  font-weight: bold;
+}
+.vue-picker-option:disabled {
+  color: var(--col-disabled);
+}
+.vue-picker-option:hover:not(:disabled) {
+  background-color: lightgray;
+}
+
+/*# sourceMappingURL=VuePickerOption.vue.map */
