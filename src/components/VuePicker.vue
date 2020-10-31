@@ -110,11 +110,13 @@ export default {
 
       this.curOptIdx = idx
 
-      this.curOpt.$el.focus()
-      this.curOpt.isSelected = true
+      if (this.curOpt) {
+        this.curOpt.$el.focus()
+        this.curOpt.isSelected = true
+      }
 
       if (this.isDropdownShown) return
-      this.emitCurOptVal(this.curOpt.value)
+      this.emitCurOptVal(this.curOpt ? this.curOpt.value : this.value)
     },
 
     selectByValue (value = '') {
@@ -122,7 +124,7 @@ export default {
       if (this.curOptIdx === idx) return
 
       const opt = this.opts[idx]
-      if (!opt || opt.isDisabled) return
+      if (!opt) return this.selectByIdx(-1)
       this.selectByIdx(idx)
     },
 
