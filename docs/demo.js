@@ -165,5 +165,9 @@ const App = {
   }
 }
 
-Vue.config.productionTip = false
-new Vue({ render: h => h(App) }).$mount('#app')
+const app = Vue.createApp(App)
+
+app.config.productionTip = false
+app.use(VuePicker)
+
+app.mount('#app')
