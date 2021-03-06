@@ -8,8 +8,10 @@ markup for the options and the opener button.
 The options can be navigated from the keyboard, the opener text can be easily
 customized, no annoying "options as arrays" props.
 
+This package currently works with Vue 2 versions only.
+
 ## Demo
-See the demo: https://invisiburu.github.io/vue-picker/  
+See the demo: https://invisiburu.github.io/vue-picker/
 See the demo sources in [docs/](docs/)
 
 ## Installation
