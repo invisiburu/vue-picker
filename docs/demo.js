@@ -46,12 +46,12 @@ const App = {
           <p class="demo__lbl">VuePicker (val1)</p>
           <VuePicker class="demo__picker" v-model="selVal1" autofocus>
             <VuePickerOption value="">Empty</VuePickerOption>
-            <VuePickerOption value="" disabled>Empty disabled</VuePickerOption>
+            <VuePickerOption value="" :isDisabled="true">Empty disabled</VuePickerOption>
             <VuePickerOption value="val-1">Value 1</VuePickerOption>
             <VuePickerOption value="val-2">Value 2</VuePickerOption>
             <VuePickerOption value="val-3">Value 3</VuePickerOption>
-            <VuePickerOption value="val-4" :disabled="true">Value 4 (disabled)</VuePickerOption>
-            <VuePickerOption value="val-5" disabled>Value 5 (disabled)</VuePickerOption>
+            <VuePickerOption value="val-4" :isDisabled="true">Value 4 (disabled)</VuePickerOption>
+            <VuePickerOption value="val-5" :isDisabled="true">Value 5 (disabled)</VuePickerOption>
             <VuePickerOption value="val-6" >Value 6</VuePickerOption>
             <VuePickerOption value="val-7" text="Hello">Custom text: Hello</VuePickerOption>
             <VuePickerOption value="val-8">Value 8</VuePickerOption>
@@ -60,14 +60,14 @@ const App = {
 
         <div class="demo__unit">
           <p class="demo__lbl">Disabled (val1)</p>
-          <VuePicker class="demo__picker" v-model="selVal1" disabled>
+          <VuePicker class="demo__picker" v-model="selVal1" :isDisabled="true">
             <VuePickerOption value="">Empty</VuePickerOption>
-            <VuePickerOption value="" disabled>Empty disabled</VuePickerOption>
+            <VuePickerOption value="" :isDisabled="true">Empty disabled</VuePickerOption>
             <VuePickerOption value="val-1">Value 1</VuePickerOption>
             <VuePickerOption value="val-2">Value 2</VuePickerOption>
             <VuePickerOption value="val-3">Value 3</VuePickerOption>
-            <VuePickerOption value="val-4" :disabled="true">Value 4 (disabled)</VuePickerOption>
-            <VuePickerOption value="val-5" disabled>Value 5 (disabled)</VuePickerOption>
+            <VuePickerOption value="val-4" :isDisabled="true">Value 4 (disabled)</VuePickerOption>
+            <VuePickerOption value="val-5" :isDisabled="true">Value 5 (disabled)</VuePickerOption>
             <VuePickerOption value="val-6" >Value 6</VuePickerOption>
             <VuePickerOption value="val-7" text="Hello">Custom text: Hello</VuePickerOption>
             <VuePickerOption value="val-8">Value 8</VuePickerOption>

@@ -6,7 +6,7 @@
   --col-border: gray;
   display: inline-block;
   position: relative; }
-  .vue-picker--disabled {
+  .vue-picker_disabled {
     --col-border: var(--col-disabled); }
 
 .vue-picker__opener {
@@ -27,7 +27,7 @@
   .vue-picker__opener:disabled {
     color: var(--col-disabled);
     cursor: not-allowed; }
-  .vue-picker:not(.vue-picker--has-val) > .vue-picker__opener {
+  .vue-picker:not(.vue-picker_has-val) > .vue-picker__opener {
     color: var(--col-placeholder); }
 
 .vue-picker__opener-ico {
@@ -62,7 +62,7 @@
   background: none;
   border: none;
   padding: 8px; }
-  .vue-picker-option--cur {
+  .vue-picker-option_cur {
     font-weight: bold; }
   .vue-picker-option:disabled {
     color: var(--col-disabled); }

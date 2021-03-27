@@ -12,6 +12,7 @@ export default {
     exports: 'named',
     globals: { 'vue': 'Vue' },
   },
+  external: ['vue'],
   plugins: [
     // css(),
     vue({
@@ -19,7 +20,11 @@ export default {
     }),
     scss(),
     commonjs(),
-    buble(),
+    buble({
+      transforms: {
+        classes: true,
+      }
+    }),
     (process.env.NODE_ENV === 'production' && terser()),
   ],
 };

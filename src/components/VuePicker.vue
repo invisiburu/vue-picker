@@ -2,19 +2,20 @@
   <div
     class="vue-picker"
     :class="{
-      'vue-picker--open': isDropdownShown,
-      'vue-picker--disabled': isDisabled,
-      'vue-picker--has-val': curOptVal,
+      'vue-picker_open': dropdown.isShown.value,
+      'vue-picker_disabled': isDisabled,
+      'vue-picker_has-val': curOptVal,
     }"
+    :ref="dropdown.outClickTarget"
   >
     <button
       class="vue-picker__opener"
       type="button"
       ref="opener"
-      @click="toggleDropdown()"
-      @keydown.up.alt.stop.prevent="toggleDropdown()"
+      @click="dropdown.toggle()"
+      @keydown.up.alt.stop.prevent="dropdown.toggle()"
       @keydown.up.exact.stop.prevent="selectPrev()"
-      @keydown.down.alt.stop.prevent="toggleDropdown()"
+      @keydown.down.alt.stop.prevent="dropdown.toggle()"
       @keydown.down.exact.stop.prevent="selectNext()"
       @keydown.home.stop.prevent="selectFirst()"
       @keydown.end.stop.prevent="selectLast()"
@@ -22,12 +23,9 @@
     >
       <slot
         name="opener"
-        :opener="{ value, text: openerTxt, opt: curOpt }"
+        :opener="{ value: modelValue, text: openerTxt, opt: curOpt }"
       >
-        <span
-          class="vue-picker__opener-txt"
-          v-html="openerHtml"
-        />
+        <span class="vue-picker__opener-txt" v-html="openerHtml" />
       </slot>
 
       <slot name="openerIco">
@@ -35,33 +33,41 @@
       </slot>
     </button>
 
-    <div
-      class="vue-picker__dropdown"
-      v-show="isDropdownShown"
-    >
+    <div class="vue-picker__dropdown" v-show="dropdown.isShown.value">
       <slot name="dropdownInner">
         <slot />
       </slot>
     </div>
-
   </div>
 </template>
 
 <script>
-import dropdownControls from '../mixins/dropdown-controls'
-import keyControls from '../mixins/key-controls'
-import { attrs } from '../mixins/attrs'
-
-const attrsMixin = attrs('disabled', 'autofocus')
+import useDropdown from '../composables/useDropdown.js'
+import useKeyboardListener from '../composables/useKeyboardListener.js'
 
 export default {
   name: 'VuePicker',
 
-  mixins: [attrsMixin, dropdownControls, keyControls],
+  emits: ['open', 'close', 'update:modelValue'],
+
+  setup () {
+    const { listen, unlisten, registerActions } = useKeyboardListener()
+
+    const dropdown = useDropdown()
+    dropdown.onShow(listen)
+    dropdown.onHide(unlisten)
+
+    return {
+      dropdown,
+      registerKeyboardActions: registerActions,
+    }
+  },
 
   props: {
-    value: { type: String, default: '' },
+    modelValue: { type: String, default: '' },
     placeholder: { type: String, default: '' },
+    isDisabled: { type: Boolean, default: false },
+    isAutofocus: { type: Boolean, default: false },
   },
 
   provide () {
@@ -78,30 +84,38 @@ export default {
   computed: {
     curOpt () { return this.opts[this.curOptIdx] },
     curOptVal () { return (this.curOpt || {}).value },
-    ph () { return !this.value && this.placeholder },
+    ph () { return !this.modelValue && this.placeholder },
     openerTxt () { return this.ph || (this.curOpt || {}).optTxt },
     openerHtml () { return this.ph || (this.curOpt || {}).optHtml },
   },
 
   watch: {
-    value (nV, oV) { (nV !== oV) && this.selectByValue(this.value) },
+    modelValue (nV, oV) { (nV !== oV) && this.selectByValue(this.modelValue) },
   },
 
   mounted () {
-    this.onDropdownShow(() => {
+    this.registerKeyboardActions({
+      toggleDropdown: () => this.dropdown.toggle(),
+      hideDropdown: () => this.dropdown.hide(),
+      selectFirst: () => this.selectFirst(),
+      selectLast: () => this.selectLast(),
+      selectPrev: () => this.selectPrev(),
+      selectNext: () => this.selectNext(),
+    })
+
+    this.dropdown.onShow(() => {
       if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
       else this.$refs.opener.blur()
       this.$emit('open')
     })
-
-    this.onDropdownHide(isOuterClick => {
+    this.dropdown.onHide(isOuterClick => {
       if (!isOuterClick) this.$refs.opener.focus()
       this.emitCurOptVal()
       this.$emit('close', isOuterClick)
     })
 
     if (this.isAutofocus) { this.$refs.opener.focus() }
-    if (this.value) { this.selectByValue(this.value) }
+    if (this.modelValue) { this.selectByValue(this.modelValue) }
   },
 
   methods: {
@@ -115,8 +129,8 @@ export default {
         this.curOpt.isSelected = true
       }
 
-      if (this.isDropdownShown) return
-      this.emitCurOptVal(this.curOpt ? this.curOpt.value : this.value)
+      if (this.dropdown.isShown.value) return
+      this.emitCurOptVal(this.curOpt ? this.curOpt.value : this.modelValue)
     },
 
     selectByValue (value = '') {
@@ -151,7 +165,7 @@ export default {
 
     emitCurOptVal (val = this.curOptVal) {
       if (typeof val !== 'string') return
-      this.$emit('input', val)
+      this.$emit('update:modelValue', val)
     },
 
     regOpt (opt) {
@@ -172,7 +186,7 @@ export default {
   display: inline-block;
   position: relative;
 
-  &--disabled {
+  &_disabled {
     --col-border: var(--col-disabled);
   }
 }
@@ -200,7 +214,7 @@ export default {
     cursor: not-allowed;
   }
 
-  .vue-picker:not(.vue-picker--has-val) > & {
+  .vue-picker:not(.vue-picker_has-val) > & {
     color: var(--col-placeholder);
   }
 }

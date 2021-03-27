@@ -2,7 +2,7 @@
   <button
     class="vue-picker-option"
     type="button"
-    :class="{ 'vue-picker-option--cur': isSelected }"
+    :class="{ 'vue-picker-option_cur': isSelected }"
     @click="selectMyValue()"
     :disabled="isDisabled"
   >
@@ -11,18 +11,13 @@
 </template>
 
 <script>
-import { attrs } from '../mixins/attrs'
-
-const attrsMixin = attrs('disabled')
-
 export default {
   name: 'VuePickerOption',
-
-  mixins: [attrsMixin],
 
   props: {
     value: { type: String, default: '' },
     text: { type: String, default: '' },
+    isDisabled: { type: Boolean, default: false },
   },
 
   data () {
@@ -43,7 +38,7 @@ export default {
   methods: {
     selectMyValue () {
       this.picker.selectByValue(this.value)
-      this.picker.hideDropdown()
+      this.picker.dropdown.hide()
     },
   },
 }
@@ -58,7 +53,7 @@ export default {
   border: none;
   padding: 8px;
 
-  &--cur {
+  &_cur {
     font-weight: bold;
   }
 
