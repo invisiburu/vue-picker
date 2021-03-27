@@ -11,6 +11,8 @@
 </template>
 
 <script>
+// TODO: test if dynamically add options works
+
 export default {
   name: 'VuePickerOption',
 
