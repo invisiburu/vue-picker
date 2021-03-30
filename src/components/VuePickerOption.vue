@@ -12,6 +12,7 @@
 
 <script>
 // TODO: test if dynamically add options works
+// TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
 
 export default {
   name: 'VuePickerOption',
