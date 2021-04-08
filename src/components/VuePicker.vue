@@ -11,15 +11,15 @@
     <button
       class="vue-picker__opener"
       type="button"
-      ref="opener"
-      @click="dropdown.toggle()"
-      @keydown.up.alt.stop.prevent="dropdown.toggle()"
-      @keydown.up.exact.stop.prevent="selectPrev()"
-      @keydown.down.alt.stop.prevent="dropdown.toggle()"
-      @keydown.down.exact.stop.prevent="selectNext()"
-      @keydown.home.stop.prevent="selectFirst()"
-      @keydown.end.stop.prevent="selectLast()"
+      @click="dropdown.toggle($event)"
+      @keydown.up.alt.stop.prevent="dropdown.toggle($event)"
+      @keydown.up.exact.stop.prevent="selectPrev($event)"
+      @keydown.down.alt.stop.prevent="dropdown.toggle($event)"
+      @keydown.down.exact.stop.prevent="selectNext($event)"
+      @keydown.home.stop.prevent="selectFirst($event)"
+      @keydown.end.stop.prevent="selectLast($event)"
       :disabled="isDisabled"
+      :ref="openerRef"
     >
       <slot
         name="opener"
@@ -42,6 +42,7 @@
 </template>
 
 <script>
+import { ref } from 'vue'
 import useDropdown from '../composables/useDropdown.js'
 import useKeyboardListener from '../composables/useKeyboardListener.js'
 
@@ -57,9 +58,16 @@ export default {
     dropdown.onShow(listen)
     dropdown.onHide(unlisten)
 
+    const openerRef = ref()
+    const focusOpener = () => { console.log(openerRef); openerRef.value.focus() }
+    const blurOpener = () => { console.log(openerRef); openerRef.value.blur() }
+
     return {
       dropdown,
       registerKeyboardActions: registerActions,
+      openerRef,
+      focusOpener,
+      blurOpener,
     }
   },
 
@@ -94,6 +102,8 @@ export default {
   },
 
   mounted () {
+    console.log(this.openerRef)
+
     this.registerKeyboardActions({
       toggleDropdown: () => this.dropdown.toggle(),
       hideDropdown: () => this.dropdown.hide(),
@@ -104,29 +114,29 @@ export default {
     })
 
     this.dropdown.onShow(() => {
-      if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
-      else this.$refs.opener.blur()
+      if (this.curOpt) this.$nextTick(() => this.curOpt.focus())
+      else this.blurOpener()
       this.$emit('open')
     })
     this.dropdown.onHide(isOuterClick => {
-      if (!isOuterClick) this.$refs.opener.focus()
+      if (!isOuterClick) this.focusOpener()
       this.emitCurOptVal()
       this.$emit('close', isOuterClick)
     })
 
-    if (this.isAutofocus) { this.$refs.opener.focus() }
+    if (this.isAutofocus) { this.focusOpener() }
     if (this.modelValue) { this.selectByValue(this.modelValue) }
   },
 
   methods: {
     selectByIdx (idx) {
-      if (this.curOpt) this.curOpt.isSelected = false
+      if (this.curOpt) this.curOpt.setIsSelected(false)
 
       this.curOptIdx = idx
 
       if (this.curOpt) {
-        this.curOpt.$el.focus()
-        this.curOpt.isSelected = true
+        this.curOpt.focus()
+        this.curOpt.setIsSelected(true)
       }
 
       if (this.dropdown.isShown.value) return
@@ -134,6 +144,7 @@ export default {
     },
 
     selectByValue (value = '') {
+      console.log(this.opts, this.openerRef)
       const idx = this.opts.findIndex(el => el.value === value)
       if (this.curOptIdx === idx) return
 
