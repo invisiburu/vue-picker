@@ -141,7 +141,7 @@ export default {
     const selectNext = (offset = 1, startIdx = curOptIdx) => {
       const nextIdx = startIdx + offset
       const nextOpt = opts[nextIdx]
-      console.log('NEXT', nextOpt)
+      console.log('NEXT')
       if (!nextOpt) return
       if (nextOpt.isDisabled) return selectNext(offset, nextIdx)
       selectByIdx(nextIdx)
