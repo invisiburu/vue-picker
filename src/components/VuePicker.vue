@@ -13,11 +13,11 @@
       type="button"
       @click="dropdown.toggle()"
       @keydown.up.alt.stop.prevent="dropdown.toggle()"
-      @keydown.up.exact.stop.prevent="selectPrev()"
+      @keydown.up.exact.stop.prevent="options.selectPrev()"
       @keydown.down.alt.stop.prevent="dropdown.toggle()"
-      @keydown.down.exact.stop.prevent="selectNext()"
-      @keydown.home.stop.prevent="selectFirst()"
-      @keydown.end.stop.prevent="selectLast()"
+      @keydown.down.exact.stop.prevent="options.selectNext()"
+      @keydown.home.stop.prevent="options.selectFirst()"
+      @keydown.end.stop.prevent="options.selectLast()"
       :disabled="isDisabled"
       ref="openerRef"
     >
@@ -44,7 +44,12 @@
 <script>
 import { computed, nextTick, onMounted, provide, ref, toRefs, watch } from 'vue'
 import useDropdown from '../composables/useDropdown.js'
+import useOptions from '../composables/useOptions.js'
 import useKeyboardListener from '../composables/useKeyboardListener.js'
+
+/**
+ * @typedef {import("./VuePickerOption.vue").default} VuePickerOption
+ */
 
 export default {
   name: 'VuePicker',
@@ -64,6 +69,10 @@ export default {
     const { listen, unlisten, registerActions } = useKeyboardListener()
 
     const dropdown = useDropdown()
+    const options = useOptions((value) => {
+      if (dropdown.isShown.value) return
+      emitModelValue(value !== undefined ? value : modelValue.value)
+    })
 
     const openerRef = ref()
     const focusOpener = () => { openerRef.value.focus() }
@@ -96,14 +105,6 @@ export default {
       if (modelValue.value) { selectByValue(modelValue.value) }
     })
 
-    // opts
-    /** @type {VuePickerOption[]} */
-    const opts = []
-    /** @type {VuePickerOption} */
-    let curOpt = ref(null)
-    let curOptVal = ref(null)
-    let curOptIdx = -1
-
     const openerTxt = computed(() => {
       if (!modelValue.value && placeholder.value) return placeholder.value
       return curOpt.value && curOpt.value.optTxt
@@ -113,64 +114,9 @@ export default {
       return curOpt.value && curOpt.value.optHtml
     })
 
-    const selectByIdx = (idx) => {
-      if (curOpt.value) curOpt.value.setIsSelected(false)
+    // opts
+    /** @type {VuePickerOption[]} */
 
-      curOptIdx = idx
-      curOpt.value = opts[idx]
-      curOptVal.value = curOpt && curOpt.value && curOpt.value.value
-
-      if (curOpt.value) {
-        curOpt.value.focus()
-        curOpt.value.setIsSelected(true)
-      }
-
-      if (dropdown.isShown.value) return
-      emitModelValue(curOptVal.value ? curOptVal.value.value : modelValue.value)
-    }
-
-    const selectByValue = (value = '') => {
-      const idx = opts.findIndex(el => el.value === value)
-      if (curOptIdx === idx) return
-
-      const opt = opts[idx]
-      if (!opt) return selectByIdx(-1)
-      selectByIdx(idx)
-    }
-
-    const selectNext = (offset = 1, startIdx = curOptIdx) => {
-      const nextIdx = startIdx + offset
-      const nextOpt = opts[nextIdx]
-      console.log('NEXT')
-      if (!nextOpt) return
-      if (nextOpt.isDisabled) return selectNext(offset, nextIdx)
-      selectByIdx(nextIdx)
-    }
-
-    const selectPrev = () => {
-      console.log('PREV')
-      if (curOptIdx < 0) return selectLast()
-      selectNext(-1)
-    }
-
-    const selectFirst = () => {
-      console.log('FIRST')
-      selectNext(1, -1)
-    }
-
-    const selectLast = () => {
-      console.log('LAST')
-      selectNext(-1, opts.length)
-    }
-
-    const emitModelValue = (val = curOptVal.value) => {
-      if (typeof val !== 'string') return
-      emit('update:modelValue', val)
-    }
-
-    const regOpt = (opt) => {
-      opts.push(opt)
-    }
 
     provide('pickerContext', {
       selectByValue: (value = '') => { selectByValue(value) },
@@ -183,6 +129,11 @@ export default {
         selectByValue(nV)
       }
     })
+
+    const emitModelValue = (val = curOptVal.value) => {
+      if (typeof val !== 'string') return
+      emit('update:modelValue', val)
+    }
 
     // /opts
 
