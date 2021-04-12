@@ -33,6 +33,7 @@ export default {
     const picker = inject('pickerContext')
     picker.regOpt({
       value: value.value,
+      isDisabled: props.isDisabled,
       optHtml: computed(() => {
         const btnHtml = btnRef.value && btnRef.value.innerHTML
         return text.value || btnHtml || value.value
@@ -42,7 +43,7 @@ export default {
         return text.value || btnText || value.value
       }
       ),
-      setIsSelected: () => { isSelected.value = false },
+      setIsSelected: (val) => { isSelected.value = val },
       focus: () => { btnRef.value && btnRef.value.focus() },
     })
 

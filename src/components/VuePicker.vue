@@ -6,24 +6,24 @@
       'vue-picker_disabled': isDisabled,
       'vue-picker_has-val': curOptVal,
     }"
-    :ref="dropdown.outClickTarget"
+    :ref="dropdown.outClickRef"
   >
     <button
       class="vue-picker__opener"
       type="button"
-      @click="dropdown.toggle($event)"
-      @keydown.up.alt.stop.prevent="dropdown.toggle($event)"
-      @keydown.up.exact.stop.prevent="selectPrev($event)"
-      @keydown.down.alt.stop.prevent="dropdown.toggle($event)"
-      @keydown.down.exact.stop.prevent="selectNext($event)"
-      @keydown.home.stop.prevent="selectFirst($event)"
-      @keydown.end.stop.prevent="selectLast($event)"
+      @click="dropdown.toggle()"
+      @keydown.up.alt.stop.prevent="dropdown.toggle()"
+      @keydown.up.exact.stop.prevent="selectPrev()"
+      @keydown.down.alt.stop.prevent="dropdown.toggle()"
+      @keydown.down.exact.stop.prevent="selectNext()"
+      @keydown.home.stop.prevent="selectFirst()"
+      @keydown.end.stop.prevent="selectLast()"
       :disabled="isDisabled"
       ref="openerRef"
     >
       <slot
         name="opener"
-        :opener="{ value: modelValue, text: openerTxt, opt: curOpt }"
+        :opener="{ value: curOptVal, text: openerTxt, opt: curOpt }"
       >
         <span class="vue-picker__opener-txt" v-html="openerHtml" />
       </slot>
@@ -71,12 +71,12 @@ export default {
 
     onMounted(() => {
       registerActions({
-        toggleDropdown: () => dropdown.toggle(),
-        hideDropdown: () => dropdown.hide(),
-        selectFirst: () => selectFirst(),
-        selectLast: () => selectLast(),
-        selectPrev: () => selectPrev(),
-        selectNext: () => selectNext(),
+        toggleDropdown: () => { dropdown.toggle() },
+        hideDropdown: () => { dropdown.hide() },
+        selectFirst: () => { selectFirst() },
+        selectLast: () => { selectLast() },
+        selectPrev: () => { selectPrev() },
+        selectNext: () => { selectNext() },
       })
 
       dropdown.onShow(() => {
@@ -88,12 +88,14 @@ export default {
       dropdown.onHide(isOuterClick => {
         unlisten()
         if (!isOuterClick) focusOpener()
-        emitCurOptVal()
+        emitModelValue()
         emit('close', isOuterClick)
       })
 
+      console.log(modelValue.value, opts)
+
       if (isAutofocus.value) { focusOpener() }
-      if (modelValue.value) { selectByValue(modelValue) }
+      if (modelValue.value) { selectByValue(modelValue.value) }
     })
 
     // opts
@@ -105,11 +107,11 @@ export default {
     let curOptIdx = -1
 
     const openerTxt = computed(() => {
-      if (!modelValue.value && placeholder) return placeholder
+      if (!modelValue.value && placeholder.value) return placeholder.value
       return curOpt.value && curOpt.value.optTxt
     })
     const openerHtml = computed(() => {
-      if (!modelValue.value && placeholder) return placeholder
+      if (!modelValue.value && placeholder.value) return placeholder.value
       return curOpt.value && curOpt.value.optHtml
     })
 
@@ -118,7 +120,7 @@ export default {
 
       curOptIdx = idx
       curOpt.value = opts[idx]
-      curOptVal.value = curOpt && curOpt.value
+      curOptVal.value = curOpt && curOpt.value && curOpt.value.value
 
       if (curOpt.value) {
         curOpt.value.focus()
@@ -126,7 +128,7 @@ export default {
       }
 
       if (dropdown.isShown.value) return
-      emitCurOptVal(curOpt.value ? curOpt.value : modelValue)
+      emitModelValue(curOptVal.value ? curOptVal.value.value : modelValue.value)
     }
 
     const selectByValue = (value = '') => {
@@ -141,25 +143,29 @@ export default {
     const selectNext = (offset = 1, startIdx = curOptIdx) => {
       const nextIdx = startIdx + offset
       const nextOpt = opts[nextIdx]
+      console.log('NEXT', nextOpt)
       if (!nextOpt) return
       if (nextOpt.isDisabled) return selectNext(offset, nextIdx)
       selectByIdx(nextIdx)
     }
 
     const selectPrev = () => {
+      console.log('PREV')
       if (curOptIdx < 0) return selectLast()
       selectNext(-1)
     }
 
     const selectFirst = () => {
+      console.log('FIRST')
       selectNext(1, -1)
     }
 
     const selectLast = () => {
+      console.log('LAST')
       selectNext(-1, opts.length)
     }
 
-    const emitCurOptVal = (val = curOptVal.value) => {
+    const emitModelValue = (val = curOptVal.value) => {
       if (typeof val !== 'string') return
       emit('update:modelValue', val)
     }

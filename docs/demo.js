@@ -125,7 +125,7 @@ const App = {
 
         <div class="demo__unit">
           <p class="demo__lbl">Custom options (val5)</p>
-          <VuePicker class="demo__picker" v-model="selVal5  ">
+          <VuePicker class="demo__picker" v-model="selVal5">
             <VuePickerOption value="">Empty</VuePickerOption>
             <VuePickerOption value="val-1">Value 1 <i>Italics</i></VuePickerOption>
             <VuePickerOption value="val-2">Value 2 <p style="display:inline-block; margin:0;"><strong>Strong P</strong></p></VuePickerOption>
@@ -150,6 +150,15 @@ const App = {
           </VuePicker>
         </div>
       </div>
+    </div>
+
+    <div>
+      <p>val1: {{ selVal1 }}</p>
+      <p>val2: {{ selVal2 }}</p>
+      <p>val3: {{ selVal3 }}</p>
+      <p>val4: {{ selVal4 }}</p>
+      <p>val5: {{ selVal5 }}</p>
+      <p>val6: {{ selVal6 }}</p>
     </div>
   `,
 

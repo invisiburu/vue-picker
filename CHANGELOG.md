@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [UNRELEASED]
 ### Changed
 - disabled => isDisabled, autofocus => isAutofocus are now boolean props
-- _open
-- _disabled
-- _has
+- css classes: _open
+- css classes: _disabled
+- css classes: _has
+- opener updated immediately
 
 ## [1.1.2] - 2021-03-06
 ### Fixed

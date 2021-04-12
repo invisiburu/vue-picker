@@ -2,10 +2,7 @@ import { ref, onUnmounted } from 'vue'
 import { onOuterClick } from '../helpers/outer-click'
 
 export default function useDropdown () {
-  const isShown = ref(false)
-  const outClickTarget = ref()
-
-  const dropdown = new Dropdown(isShown, outClickTarget)
+  const dropdown = new Dropdown()
 
   onUnmounted(() => dropdown.destroy())
 
@@ -13,13 +10,9 @@ export default function useDropdown () {
 }
 
 class Dropdown {
-  /**
-   * @param {import('vue').Ref<boolean>} isShown
-   * @param {import('vue').Ref} outClickTarget
-   */
-  constructor (isShown, outClickTarget) {
-    this.isShown = isShown
-    this.outClickTarget = outClickTarget
+  constructor () {
+    this.isShown = ref(false)
+    this.outClickRef = ref()
     this._unlistenOuterClick = () => { }
     this._onShowSubs = []
     this._onHideSubs = []
@@ -70,6 +63,6 @@ class Dropdown {
 
   _listenOuterClick () {
     const listener = () => this.hide(true)
-    this._unlistenOuterClick = onOuterClick(this.outClickTarget.value, listener)
+    this._unlistenOuterClick = onOuterClick(this.outClickRef.value, listener)
   }
 }
