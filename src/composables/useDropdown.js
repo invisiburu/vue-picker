@@ -1,68 +1,68 @@
 import { ref, onUnmounted } from 'vue'
-import { onOuterClick } from '../helpers/outer-click'
 
 export default function useDropdown () {
-  const dropdown = new Dropdown()
+  const isShown = ref(false)
+  const clickOutRef = ref()
 
-  onUnmounted(() => dropdown.destroy())
+  let _unlistenOuterClick = () => { }
+  let _onShowSubs = []
+  let _onHideSubs = []
+  const _unsubs = []
 
-  return dropdown
-}
-
-class Dropdown {
-  constructor () {
-    this.isShown = ref(false)
-    this.outClickRef = ref()
-    this._unlistenOuterClick = () => { }
-    this._onShowSubs = []
-    this._onHideSubs = []
-    this._unsubs = []
+  const toggle = () => {
+    isShown.value ? hide() : show()
   }
 
-  destroy () {
-    console.log('DESTROYED')
-    this._unlistenOuterClick()
-    this._unsubs.forEach(unsub => unsub())
-  }
-
-  toggle () {
-    if (this.isShown.value) {
-      this.hide()
-    } else {
-      this.show()
-    }
-  }
-
-  show () {
+  const show = () => {
     console.log('SHOW')
-    this._listenOuterClick()
-    this.isShown.value = true
-    this._onShowSubs.forEach(cb => cb())
+    isShown.value = true
+    _unlistenOuterClick = _onClickOut(clickOutRef.value, () => hide(true))
+    _onShowSubs.forEach(cb => cb())
   }
 
-  hide (isOuterClick = false) {
+  const hide = (isOuterClick = false) => {
     console.log('HIDE')
-    this._unlistenOuterClick()
-    this.isShown.value = false
-    this._onHideSubs.forEach(cb => cb(isOuterClick))
+    isShown.value = false
+    _unlistenOuterClick()
+    _onHideSubs.forEach(cb => cb(isOuterClick))
   }
 
-  onShow (cb) {
-    this._onShowSubs.push(cb)
-    this._unsubs.push(() => {
-      this._onShowSubs = this._onShowSubs.filter(el => el !== cb)
+  const onShow = (cb) => {
+    _onShowSubs.push(cb)
+    _unsubs.push(() => {
+      _onShowSubs = _onShowSubs.filter(el => el !== cb)
     })
   }
 
-  onHide (cb) {
-    this._onHideSubs.push(cb)
-    this._unsubs.push(() => {
-      this._onHideSubs = this._onHideSubs.filter(el => el !== cb)
+  const onHide = (cb) => {
+    _onHideSubs.push(cb)
+    _unsubs.push(() => {
+      _onHideSubs = _onHideSubs.filter(el => el !== cb)
     })
   }
 
-  _listenOuterClick () {
-    const listener = () => this.hide(true)
-    this._unlistenOuterClick = onOuterClick(this.outClickRef.value, listener)
+  onUnmounted(() => {
+    _unlistenOuterClick()
+    _unsubs.forEach(unsub => unsub())
+  })
+
+  return {
+    isShown,
+    clickOutRef,
+    toggle,
+    show,
+    hide,
+    onShow,
+    onHide,
   }
 }
+
+function _onClickOut (el, cb) {
+  const handler = (e) => {
+    if (!el.contains(e.target)) cb()
+  }
+
+  document.addEventListener('click', handler, false)
+  return () => { document.removeEventListener('click', handler, false) }
+}
+

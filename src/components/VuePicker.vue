@@ -6,7 +6,7 @@
       'vue-picker_disabled': isDisabled,
       'vue-picker_has-val': curOptVal,
     }"
-    :ref="dropdown.outClickRef"
+    :ref="dropdown.clickOutRef"
   >
     <button
       class="vue-picker__opener"
@@ -91,8 +91,6 @@ export default {
         emitModelValue()
         emit('close', isOuterClick)
       })
-
-      console.log(modelValue.value, opts)
 
       if (isAutofocus.value) { focusOpener() }
       if (modelValue.value) { selectByValue(modelValue.value) }
