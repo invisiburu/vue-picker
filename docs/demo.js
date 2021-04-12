@@ -168,6 +168,6 @@ const App = {
 const app = Vue.createApp(App)
 
 app.config.productionTip = false
-app.use(VuePicker)
+app.use(window.VuePicker)
 
 app.mount('#app')
