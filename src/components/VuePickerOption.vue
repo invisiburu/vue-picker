@@ -5,7 +5,7 @@
     :class="{ 'vue-picker-option_cur': isSelected }"
     @click="selectMyValue($event)"
     :disabled="isDisabled"
-    :ref="btnRef"
+    ref="btnRef"
   >
     <slot />
   </button>
@@ -33,11 +33,14 @@ export default {
     const picker = inject('pickerContext')
     picker.regOpt({
       value: value.value,
-      optHtml: computed(
-        () => { console.log(text.value, (btnRef.value && btnRef.value.innerHTML), value.value); text.value || (btnRef.value && btnRef.value.innerHTML) || value.value }
-      ),
-      optTxt: computed(
-        () => { console.log(text.value, (btnRef.value && btnRef.value.innerText), value.value); text.value || (btnRef.value && btnRef.value.innerText) || value.value }
+      optHtml: computed(() => {
+        const btnHtml = btnRef.value && btnRef.value.innerHTML
+        return text.value || btnHtml || value.value
+      }),
+      optTxt: computed(() => {
+        const btnText = btnRef.value && btnRef.value.innerText
+        return text.value || btnText || value.value
+      }
       ),
       setIsSelected: () => { isSelected.value = false },
       focus: () => { btnRef.value && btnRef.value.focus() },
@@ -45,7 +48,7 @@ export default {
 
     const selectMyValue = () => {
       picker.selectByValue(value.value)
-      picker.dropdown.hide()
+      picker.hideDropdown()
     }
 
     return {

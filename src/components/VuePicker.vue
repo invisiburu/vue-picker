@@ -19,7 +19,7 @@
       @keydown.home.stop.prevent="selectFirst($event)"
       @keydown.end.stop.prevent="selectLast($event)"
       :disabled="isDisabled"
-      :ref="openerRef"
+      ref="openerRef"
     >
       <slot
         name="opener"
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { computed, nextTick, onMounted, provide, ref, toRefs, watch } from 'vue'
 import useDropdown from '../composables/useDropdown.js'
 import useKeyboardListener from '../composables/useKeyboardListener.js'
 
@@ -51,26 +51,6 @@ export default {
 
   emits: ['open', 'close', 'update:modelValue'],
 
-  setup () {
-    const { listen, unlisten, registerActions } = useKeyboardListener()
-
-    const dropdown = useDropdown()
-    dropdown.onShow(listen)
-    dropdown.onHide(unlisten)
-
-    const openerRef = ref()
-    const focusOpener = () => { console.log(openerRef); openerRef.value.focus() }
-    const blurOpener = () => { console.log(openerRef); openerRef.value.blur() }
-
-    return {
-      dropdown,
-      registerKeyboardActions: registerActions,
-      openerRef,
-      focusOpener,
-      blurOpener,
-    }
-  },
-
   props: {
     modelValue: { type: String, default: '' },
     placeholder: { type: String, default: '' },
@@ -78,110 +58,142 @@ export default {
     isAutofocus: { type: Boolean, default: false },
   },
 
-  provide () {
-    return { 'pickerContext': this }
-  },
+  setup (props, { emit }) {
+    const { modelValue, placeholder, isAutofocus } = toRefs(props)
 
-  data () {
-    return {
-      curOptIdx: -1,
-      opts: [],
-    }
-  },
+    const { listen, unlisten, registerActions } = useKeyboardListener()
 
-  computed: {
-    curOpt () { return this.opts[this.curOptIdx] },
-    curOptVal () { return (this.curOpt || {}).value },
-    ph () { return !this.modelValue && this.placeholder },
-    openerTxt () { return this.ph || (this.curOpt || {}).optTxt },
-    openerHtml () { return this.ph || (this.curOpt || {}).optHtml },
-  },
+    const dropdown = useDropdown()
 
-  watch: {
-    modelValue (nV, oV) { (nV !== oV) && this.selectByValue(this.modelValue) },
-  },
+    const openerRef = ref()
+    const focusOpener = () => { openerRef.value.focus() }
+    const blurOpener = () => { openerRef.value.blur() }
 
-  mounted () {
-    console.log(this.openerRef)
+    onMounted(() => {
+      registerActions({
+        toggleDropdown: () => dropdown.toggle(),
+        hideDropdown: () => dropdown.hide(),
+        selectFirst: () => selectFirst(),
+        selectLast: () => selectLast(),
+        selectPrev: () => selectPrev(),
+        selectNext: () => selectNext(),
+      })
 
-    this.registerKeyboardActions({
-      toggleDropdown: () => this.dropdown.toggle(),
-      hideDropdown: () => this.dropdown.hide(),
-      selectFirst: () => this.selectFirst(),
-      selectLast: () => this.selectLast(),
-      selectPrev: () => this.selectPrev(),
-      selectNext: () => this.selectNext(),
+      dropdown.onShow(() => {
+        listen()
+        if (curOpt.value) nextTick(() => curOpt.value.focus())
+        else blurOpener()
+        emit('open')
+      })
+      dropdown.onHide(isOuterClick => {
+        unlisten()
+        if (!isOuterClick) focusOpener()
+        emitCurOptVal()
+        emit('close', isOuterClick)
+      })
+
+      if (isAutofocus.value) { focusOpener() }
+      if (modelValue.value) { selectByValue(modelValue) }
     })
 
-    this.dropdown.onShow(() => {
-      if (this.curOpt) this.$nextTick(() => this.curOpt.focus())
-      else this.blurOpener()
-      this.$emit('open')
+    // opts
+    /** @type {VuePickerOption[]} */
+    const opts = []
+    /** @type {VuePickerOption} */
+    let curOpt = ref(null)
+    let curOptVal = ref(null)
+    let curOptIdx = -1
+
+    const openerTxt = computed(() => {
+      if (!modelValue.value && placeholder) return placeholder
+      return curOpt.value && curOpt.value.optTxt
     })
-    this.dropdown.onHide(isOuterClick => {
-      if (!isOuterClick) this.focusOpener()
-      this.emitCurOptVal()
-      this.$emit('close', isOuterClick)
+    const openerHtml = computed(() => {
+      if (!modelValue.value && placeholder) return placeholder
+      return curOpt.value && curOpt.value.optHtml
     })
 
-    if (this.isAutofocus) { this.focusOpener() }
-    if (this.modelValue) { this.selectByValue(this.modelValue) }
-  },
+    const selectByIdx = (idx) => {
+      if (curOpt.value) curOpt.value.setIsSelected(false)
 
-  methods: {
-    selectByIdx (idx) {
-      if (this.curOpt) this.curOpt.setIsSelected(false)
+      curOptIdx = idx
+      curOpt.value = opts[idx]
+      curOptVal.value = curOpt && curOpt.value
 
-      this.curOptIdx = idx
-
-      if (this.curOpt) {
-        this.curOpt.focus()
-        this.curOpt.setIsSelected(true)
+      if (curOpt.value) {
+        curOpt.value.focus()
+        curOpt.value.setIsSelected(true)
       }
 
-      if (this.dropdown.isShown.value) return
-      this.emitCurOptVal(this.curOpt ? this.curOpt.value : this.modelValue)
-    },
+      if (dropdown.isShown.value) return
+      emitCurOptVal(curOpt.value ? curOpt.value : modelValue)
+    }
 
-    selectByValue (value = '') {
-      console.log(this.opts, this.openerRef)
-      const idx = this.opts.findIndex(el => el.value === value)
-      if (this.curOptIdx === idx) return
+    const selectByValue = (value = '') => {
+      const idx = opts.findIndex(el => el.value === value)
+      if (curOptIdx === idx) return
 
-      const opt = this.opts[idx]
-      if (!opt) return this.selectByIdx(-1)
-      this.selectByIdx(idx)
-    },
+      const opt = opts[idx]
+      if (!opt) return selectByIdx(-1)
+      selectByIdx(idx)
+    }
 
-    selectNext (offset = 1, startIdx = this.curOptIdx) {
+    const selectNext = (offset = 1, startIdx = curOptIdx) => {
       const nextIdx = startIdx + offset
-      const nextOpt = this.opts[nextIdx]
+      const nextOpt = opts[nextIdx]
       if (!nextOpt) return
-      if (nextOpt.isDisabled) return this.selectNext(offset, nextIdx)
-      this.selectByIdx(nextIdx)
-    },
+      if (nextOpt.isDisabled) return selectNext(offset, nextIdx)
+      selectByIdx(nextIdx)
+    }
 
-    selectPrev () {
-      if (this.curOptIdx < 0) return this.selectLast()
-      this.selectNext(-1)
-    },
+    const selectPrev = () => {
+      if (curOptIdx < 0) return selectLast()
+      selectNext(-1)
+    }
 
-    selectFirst () {
-      this.selectNext(1, -1)
-    },
+    const selectFirst = () => {
+      selectNext(1, -1)
+    }
 
-    selectLast () {
-      this.selectNext(-1, this.opts.length)
-    },
+    const selectLast = () => {
+      selectNext(-1, opts.length)
+    }
 
-    emitCurOptVal (val = this.curOptVal) {
+    const emitCurOptVal = (val = curOptVal.value) => {
       if (typeof val !== 'string') return
-      this.$emit('update:modelValue', val)
-    },
+      emit('update:modelValue', val)
+    }
 
-    regOpt (opt) {
-      this.opts.push(opt)
-    },
+    const regOpt = (opt) => {
+      opts.push(opt)
+    }
+
+    provide('pickerContext', {
+      selectByValue: (value = '') => { selectByValue(value) },
+      regOpt: (opt) => { regOpt(opt) },
+      hideDropdown: () => { dropdown.hide() },
+    })
+
+    watch(modelValue, (nV, oV) => {
+      if (nV !== oV) {
+        selectByValue(nV)
+      }
+    })
+
+    // /opts
+
+    return {
+      dropdown,
+      openerRef,
+      curOpt,
+      curOptVal,
+      openerTxt,
+      openerHtml,
+      selectNext,
+      selectPrev,
+      selectFirst,
+      selectLast,
+    }
   },
 }
 </script>
