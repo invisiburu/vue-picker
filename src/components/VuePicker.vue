@@ -4,7 +4,7 @@
     :class="{
       'vue-picker_open': dropdown.isShown.value,
       'vue-picker_disabled': isDisabled,
-      'vue-picker_has-val': curOptVal,
+      'vue-picker_has-val': placeholder ? modelValue : curOptVal,
     }"
     :ref="dropdown.clickOutRef"
   >
@@ -65,89 +65,82 @@ export default {
 
   setup (props, { emit }) {
     const { modelValue, placeholder, isAutofocus } = toRefs(props)
+    const openerRef = ref()
 
     const { listen, unlisten, registerActions } = useKeyboardListener()
 
     const dropdown = useDropdown()
-    const options = useOptions((value) => {
+    const options = useOptions()
+
+    options.onSelect((value) => {
       if (dropdown.isShown.value) return
       emitModelValue(value !== undefined ? value : modelValue.value)
     })
-
-    const openerRef = ref()
-    const focusOpener = () => { openerRef.value.focus() }
-    const blurOpener = () => { openerRef.value.blur() }
 
     onMounted(() => {
       registerActions({
         toggleDropdown: () => { dropdown.toggle() },
         hideDropdown: () => { dropdown.hide() },
-        selectFirst: () => { selectFirst() },
-        selectLast: () => { selectLast() },
-        selectPrev: () => { selectPrev() },
-        selectNext: () => { selectNext() },
+        selectFirst: () => { options.selectFirst() },
+        selectLast: () => { options.selectLast() },
+        selectPrev: () => { options.selectPrev() },
+        selectNext: () => { options.selectNext() },
       })
 
       dropdown.onShow(() => {
         listen()
-        if (curOpt.value) nextTick(() => curOpt.value.focus())
-        else blurOpener()
+        if (options.current.value) {
+          nextTick(() => options.current.value.focus())
+        } else {
+          openerRef.value.blur()
+        }
         emit('open')
       })
       dropdown.onHide(isOuterClick => {
         unlisten()
-        if (!isOuterClick) focusOpener()
+        if (!isOuterClick) openerRef.value.focus()
         emitModelValue()
         emit('close', isOuterClick)
       })
 
-      if (isAutofocus.value) { focusOpener() }
-      if (modelValue.value) { selectByValue(modelValue.value) }
+      if (isAutofocus.value) { openerRef.value.focus() }
+      if (modelValue.value) { options.selectByValue(modelValue.value) }
     })
 
     const openerTxt = computed(() => {
       if (!modelValue.value && placeholder.value) return placeholder.value
-      return curOpt.value && curOpt.value.optTxt
+      return options.current.value && options.current.value.optTxt
     })
     const openerHtml = computed(() => {
       if (!modelValue.value && placeholder.value) return placeholder.value
-      return curOpt.value && curOpt.value.optHtml
+      return options.current.value && options.current.value.optHtml
     })
 
-    // opts
-    /** @type {VuePickerOption[]} */
-
-
     provide('pickerContext', {
-      selectByValue: (value = '') => { selectByValue(value) },
-      regOpt: (opt) => { regOpt(opt) },
+      selectByValue: (value = '') => { options.selectByValue(value) },
+      regOpt: (opt) => { options.registerOption(opt) },
       hideDropdown: () => { dropdown.hide() },
     })
 
     watch(modelValue, (nV, oV) => {
       if (nV !== oV) {
-        selectByValue(nV)
+        options.selectByValue(nV)
       }
     })
 
-    const emitModelValue = (val = curOptVal.value) => {
+    const emitModelValue = (val = options.currentValue.value) => {
       if (typeof val !== 'string') return
       emit('update:modelValue', val)
     }
 
-    // /opts
-
     return {
       dropdown,
+      options,
       openerRef,
-      curOpt,
-      curOptVal,
+      curOpt: options.current,
+      curOptVal: options.currentValue,
       openerTxt,
       openerHtml,
-      selectNext,
-      selectPrev,
-      selectFirst,
-      selectLast,
     }
   },
 }

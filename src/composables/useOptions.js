@@ -1,9 +1,11 @@
 import { ref } from 'vue'
 
-export default function useOptions (onSelect = () => { }) {
+export default function useOptions () {
   const _options = []
   const current = ref(null)
+  const currentValue = ref(null)
   let _currentIdx = -1
+  let _onSelect = () => { }
 
   const selectByValue = (value = '') => {
     const idx = _options.findIndex(el => el.value === value)
@@ -51,13 +53,17 @@ export default function useOptions (onSelect = () => { }) {
     }
 
     current.value = option
-    onSelect(option && option.value)
+    currentValue.value = option && option.value
+    _onSelect(option && option.value)
   }
 
   const registerOption = (opt) => { _options.push(opt) }
+  const onSelect = (cb = () => { }) => { _onSelect = cb }
 
   return {
     current,
+    currentValue,
+    onSelect,
     registerOption,
     selectByValue,
     selectNext,

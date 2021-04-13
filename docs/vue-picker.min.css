@@ -1,3 +1,17 @@
+.vue-picker-option {
+  display: block;
+  text-align: start;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 8px; }
+  .vue-picker-option_cur {
+    font-weight: bold; }
+  .vue-picker-option:disabled {
+    color: var(--col-disabled); }
+  .vue-picker-option:hover:not(:disabled) {
+    background-color: lightgray; }
+
 .vue-picker {
   --col: black;
   --col-dd-bg: white;
@@ -54,17 +68,3 @@
   padding: 8px 0;
   overflow-y: auto;
   display: inline-block; }
-
-.vue-picker-option {
-  display: block;
-  text-align: start;
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 8px; }
-  .vue-picker-option_cur {
-    font-weight: bold; }
-  .vue-picker-option:disabled {
-    color: var(--col-disabled); }
-  .vue-picker-option:hover:not(:disabled) {
-    background-color: lightgray; }
