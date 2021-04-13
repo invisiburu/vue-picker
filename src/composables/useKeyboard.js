@@ -40,10 +40,16 @@ function _onKeyDown (dropdown, options, event) {
     case 'Esc':
     case 'Escape':
     case 'Tab':
-    case 'Enter':
+      if (!dropdown.isShown.value) break
       event.preventDefault()
       event.stopPropagation()
       dropdown.hide()
+      break
+
+    case 'Enter':
+      event.preventDefault()
+      event.stopPropagation()
+      dropdown.toggle()
       break
 
     case 'Up':

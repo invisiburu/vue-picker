@@ -2,22 +2,16 @@
   <div
     class="vue-picker"
     :class="{
-      'vue-picker_open': dropdown.isShown.value,
+      'vue-picker_open': dropdownIsShown,
       'vue-picker_disabled': isDisabled,
       'vue-picker_has-val': placeholder ? modelValue : curOptVal,
     }"
-    :ref="dropdown.clickOutRef"
+    ref="dropdownClickOutRef"
   >
     <button
       class="vue-picker__opener"
       type="button"
-      @click="dropdown.toggle()"
-      @keydown.up.alt.stop.prevent="dropdown.toggle()"
-      @keydown.up.exact.stop.prevent="options.selectPrev()"
-      @keydown.down.alt.stop.prevent="dropdown.toggle()"
-      @keydown.down.exact.stop.prevent="options.selectNext()"
-      @keydown.home.stop.prevent="options.selectFirst()"
-      @keydown.end.stop.prevent="options.selectLast()"
+      @click="dropdownToggle()"
       :disabled="isDisabled"
       ref="openerRef"
     >
@@ -33,7 +27,7 @@
       </slot>
     </button>
 
-    <div class="vue-picker__dropdown" v-show="dropdown.isShown.value">
+    <div class="vue-picker__dropdown" v-show="dropdownIsShown">
       <slot name="dropdownInner">
         <slot />
       </slot>
@@ -63,21 +57,22 @@ export default {
     const { modelValue, placeholder, isAutofocus } = toRefs(props)
     const openerRef = ref()
 
-
     const dropdown = useDropdown()
     const options = useOptions()
-    const kb = useKeyboard(dropdown, options)
+    const keyboard = useKeyboard(dropdown, options)
 
     options.onSelect((value) => {
       if (dropdown.isShown.value) return
-      emitModelValue(value !== undefined ? value : modelValue.value)
+      _emitModelValue(value !== undefined ? value : modelValue.value)
     })
 
     watch(modelValue, (nV, oV) => { nV !== oV && options.selectByValue(nV) })
 
     onMounted(() => {
+      keyboard.listenOn(openerRef.value)
+
       dropdown.onShow(() => {
-        kb.listenOn(document)
+        keyboard.listenOn(document)
         if (options.current.value) {
           nextTick(() => options.current.value.focus())
         } else {
@@ -85,10 +80,11 @@ export default {
         }
         emit('open')
       })
-      dropdown.onHide(isOuterClick => {
-        kb.unlistenOn(document)
+
+      dropdown.onHide((isOuterClick) => {
+        keyboard.unlistenOn(document)
         if (!isOuterClick) openerRef.value.focus()
-        emitModelValue()
+        _emitModelValue()
         emit('close', isOuterClick)
       })
 
@@ -96,15 +92,9 @@ export default {
       if (modelValue.value) { options.selectByValue(modelValue.value) }
     })
 
-    onBeforeUnmount(() => kb.unlisten(document))
-
-    const openerTxt = computed(() => {
-      if (!modelValue.value && placeholder.value) return placeholder.value
-      return options.current.value && options.current.value.optTxt
-    })
-    const openerHtml = computed(() => {
-      if (!modelValue.value && placeholder.value) return placeholder.value
-      return options.current.value && options.current.value.optHtml
+    onBeforeUnmount(() => {
+      keyboard.unlistenOn(openerRef.value)
+      keyboard.unlisten(document)
     })
 
     provide('pickerContext', {
@@ -113,19 +103,26 @@ export default {
       hideDropdown: () => { dropdown.hide() },
     })
 
-    const emitModelValue = (val = options.currentValue.value) => {
+    const _emitModelValue = (val = options.currentValue.value) => {
       if (typeof val !== 'string') return
       emit('update:modelValue', val)
     }
 
     return {
-      dropdown,
-      options,
       openerRef,
+      dropdownIsShown: dropdown.isShown,
+      dropdownClickOutRef: dropdown.clickOutRef,
+      dropdownToggle: () => dropdown.toggle(),
       curOpt: options.current,
       curOptVal: options.currentValue,
-      openerTxt,
-      openerHtml,
+      openerTxt: computed(() => {
+        if (!modelValue.value && placeholder.value) return placeholder.value
+        return options.current.value && options.current.value.optTxt
+      }),
+      openerHtml: computed(() => {
+        if (!modelValue.value && placeholder.value) return placeholder.value
+        return options.current.value && options.current.value.optHtml
+      }),
     }
   },
 }
