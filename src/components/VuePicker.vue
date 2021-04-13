@@ -42,14 +42,10 @@
 </template>
 
 <script>
-import { computed, nextTick, onMounted, provide, ref, toRefs, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, toRefs, watch } from 'vue'
 import useDropdown from '../composables/useDropdown.js'
 import useOptions from '../composables/useOptions.js'
-import useKeyboardListener from '../composables/useKeyboardListener.js'
-
-/**
- * @typedef {import("./VuePickerOption.vue").default} VuePickerOption
- */
+import useKeyboard from '../composables/useKeyboard.js'
 
 export default {
   name: 'VuePicker',
@@ -67,28 +63,21 @@ export default {
     const { modelValue, placeholder, isAutofocus } = toRefs(props)
     const openerRef = ref()
 
-    const { listen, unlisten, registerActions } = useKeyboardListener()
 
     const dropdown = useDropdown()
     const options = useOptions()
+    const kb = useKeyboard(dropdown, options)
 
     options.onSelect((value) => {
       if (dropdown.isShown.value) return
       emitModelValue(value !== undefined ? value : modelValue.value)
     })
 
-    onMounted(() => {
-      registerActions({
-        toggleDropdown: () => { dropdown.toggle() },
-        hideDropdown: () => { dropdown.hide() },
-        selectFirst: () => { options.selectFirst() },
-        selectLast: () => { options.selectLast() },
-        selectPrev: () => { options.selectPrev() },
-        selectNext: () => { options.selectNext() },
-      })
+    watch(modelValue, (nV, oV) => { nV !== oV && options.selectByValue(nV) })
 
+    onMounted(() => {
       dropdown.onShow(() => {
-        listen()
+        kb.listenOn(document)
         if (options.current.value) {
           nextTick(() => options.current.value.focus())
         } else {
@@ -97,7 +86,7 @@ export default {
         emit('open')
       })
       dropdown.onHide(isOuterClick => {
-        unlisten()
+        kb.unlistenOn(document)
         if (!isOuterClick) openerRef.value.focus()
         emitModelValue()
         emit('close', isOuterClick)
@@ -106,6 +95,8 @@ export default {
       if (isAutofocus.value) { openerRef.value.focus() }
       if (modelValue.value) { options.selectByValue(modelValue.value) }
     })
+
+    onBeforeUnmount(() => kb.unlisten(document))
 
     const openerTxt = computed(() => {
       if (!modelValue.value && placeholder.value) return placeholder.value
@@ -118,14 +109,8 @@ export default {
 
     provide('pickerContext', {
       selectByValue: (value = '') => { options.selectByValue(value) },
-      regOpt: (opt) => { options.registerOption(opt) },
+      registerOption: (opt) => { options.registerOption(opt) },
       hideDropdown: () => { dropdown.hide() },
-    })
-
-    watch(modelValue, (nV, oV) => {
-      if (nV !== oV) {
-        options.selectByValue(nV)
-      }
     })
 
     const emitModelValue = (val = options.currentValue.value) => {

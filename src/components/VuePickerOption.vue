@@ -31,7 +31,7 @@ export default {
     const isSelected = ref(false)
 
     const picker = inject('pickerContext')
-    picker.regOpt({
+    picker.registerOption({
       value: value.value,
       isDisabled: props.isDisabled,
       optHtml: computed(() => {

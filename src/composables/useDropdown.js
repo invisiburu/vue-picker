@@ -1,5 +1,39 @@
 import { ref, onUnmounted } from 'vue'
 
+/**
+ * @callback HideFunc
+ * @param {boolean} [isOuterClick]
+ */
+
+/**
+ * @callback OnShowFunc
+ * @param {Function} cb
+ */
+
+/**
+ * @callback OnHideFunc
+ * @param {OnHideCallback} cb
+ */
+
+/**
+ * @callback OnHideCallback
+ * @param {boolean} [isOuterClick]
+ */
+
+/**
+ * @typedef {object} DropdownHookResult
+ * @property {import('vue').Ref<boolean>} isShown
+ * @property {import('vue').Ref<HTMLElement>} clickOutRef
+ * @property {Function} toggle
+ * @property {Function} show
+ * @property {HideFunc} hide
+ * @property {OnShowFunc} OnShowFunc
+ * @property {OnHideFunc} onHide
+ */
+
+/**
+ * @returns {DropdownHookResult}
+ */
 export default function useDropdown () {
   const isShown = ref(false)
   const clickOutRef = ref()

@@ -1,9 +1,58 @@
 import { ref } from 'vue'
 
+/**
+ * @typedef {object} VuePickerOption
+ * @property {string} value
+ * @property {boolean} isDisabled
+ * @property {Function} setIsSelected
+ * @property {Function} focus
+ * @property {import('vue').ComputedRef<string>} optTxt
+ * @property {import('vue').ComputedRef<string>} optHtml
+ */
+
+/**
+ * @callback OnSelectFunc
+ * @param {OnSelectCallback} cb
+ */
+
+/**
+ * @callback SelectByValueFunc
+ * @param {string} value
+ */
+
+/**
+ * @callback OnSelectCallback
+ * @param {string} value
+ */
+
+/**
+ * @callback RegisterOptionFunc
+ * @param {VuePickerOption} option
+ */
+
+/**
+ * @typedef {object} OptionsHookResult
+ * @property {import('vue').Ref<VuePickerOption>} current
+ * @property {import('vue').Ref<string>} currentValue
+ * @property {OnSelectFunc} onSelect
+ * @property {RegisterOptionFunc} registerOption
+ * @property {SelectByValueFunc} selectByValue
+ * @property {Function} selectNext
+ * @property {Function} selectPrev
+ * @property {Function} selectFirst
+ * @property {Function} selectLast
+ */
+
+/**
+ * @returns {OptionsHookResult}
+ */
 export default function useOptions () {
-  const _options = []
+  /** @type {import('vue').Ref<VuePickerOption>} */
   const current = ref(null)
+  /** @type {import('vue').Ref<string} */
   const currentValue = ref(null)
+  /** @type {VuePickerOption[]} */
+  const _options = []
   let _currentIdx = -1
   let _onSelect = () => { }
 
