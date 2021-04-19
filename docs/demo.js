@@ -9,10 +9,32 @@ const App = {
         the external model, etc.
       </p>
 
-      <aside class="demo__aside">
+      <div class="demo__values">
+        <h4 class="demo__values-title">Values:</h4>
+        <table class="demo__table">
+          <tr class="table__table-row">
+            <th class="demo__table-cell">val1</th>
+            <th class="demo__table-cell">val2</th>
+            <th class="demo__table-cell">val3</th>
+            <th class="demo__table-cell">val4</th>
+            <th class="demo__table-cell">val5</th>
+            <th class="demo__table-cell">val6</th>
+          </tr>
+          <tr class="table__table-row">
+            <td class="demo__table-cell">{{ selVal1 }}</td>
+            <td class="demo__table-cell">{{ selVal2 }}</td>
+            <td class="demo__table-cell">{{ selVal3 }}</td>
+            <td class="demo__table-cell">{{ selVal4 }}</td>
+            <td class="demo__table-cell">{{ selVal5 }}</td>
+            <td class="demo__table-cell">{{ selVal6 }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <aside class="demo__units">
         <div class="demo__unit">
           <p class="demo__lbl">Default select (val1)</p>
-          <select v-model="selVal1">
+          <select class="demo__picker" v-model="selVal1">
             <option value="">Empty</option>
             <option value="" disabled>Empty disabled</option>
             <option value="val-1">Value 1</option>
@@ -150,15 +172,6 @@ const App = {
           </VuePicker>
         </div>
       </div>
-    </div>
-
-    <div>
-      <p>val1: {{ selVal1 }}</p>
-      <p>val2: {{ selVal2 }}</p>
-      <p>val3: {{ selVal3 }}</p>
-      <p>val4: {{ selVal4 }}</p>
-      <p>val5: {{ selVal5 }}</p>
-      <p>val6: {{ selVal6 }}</p>
     </div>
   `,
 

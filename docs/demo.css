@@ -1,11 +1,20 @@
-.demo {
-  display: grid;
-  grid:
-    "description description"
-    "aside units"
-    / auto 1fr;
-  gap: 0 20px;
-  align-content: start;
+.demo__values {
+  grid-area: values;
+}
+
+.demo__values-title {
+  margin: 0;
+}
+
+.demo__table {
+  border: 1px solid #333333;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.demo__table-cell {
+  border: 1px solid #333333;
+  padding: 4px;
 }
 
 .demo__description {
@@ -14,14 +23,11 @@
 
 .demo__picker {
   width: 100%;
+  min-height: 37px;
 }
 
 .demo__picker > .vue-picker__opener {
   min-height: 37px;
-}
-
-.demo__aside {
-  grid-area: aside;
 }
 
 .demo__units {
@@ -54,4 +60,10 @@
   border-radius: 50%;
   border: 1px solid blue;
   background: orange;
+}
+
+@media screen and (max-width: 376px) {
+  .demo__units {
+    grid: auto-flow auto / auto;
+  }
 }
