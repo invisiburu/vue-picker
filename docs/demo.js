@@ -61,6 +61,36 @@ const App = {
             <option value="val-22">Value 22</option>
           </select>
         </div>
+
+        <div class="demo__unit">
+          <p class="demo__lbl">Default select disabled (val1)</p>
+          <select class="demo__picker" v-model="selVal1" disabled>
+            <option value="">Empty</option>
+            <option value="" disabled>Empty disabled</option>
+            <option value="val-1">Value 1</option>
+            <option value="val-2">Value 2</option>
+            <option value="val-3" disabled>Value 3 (disabled)</option>
+            <option value="val-4" disabled>Value 4 (disabled)</option>
+            <option value="val-5">Value 5</option>
+            <option value="val-6">Value 6</option>
+            <option value="val-7">Value 7</option>
+            <option value="val-8">Value 8</option>
+            <option value="val-9">Value 9</option>
+            <option value="val-10">Value 10</option>
+            <option value="val-11">Value 11</option>
+            <option value="val-12">Value 12</option>
+            <option value="val-13">Value 13</option>
+            <option value="val-14">Value 14</option>
+            <option value="val-15">Value 15</option>
+            <option value="val-16">Value 16</option>
+            <option value="val-17">Value 17</option>
+            <option value="val-18">Value 18</option>
+            <option value="val-19">Value 19</option>
+            <option value="val-20">Value 20</option>
+            <option value="val-21">Value 21</option>
+            <option value="val-22">Value 22</option>
+          </select>
+        </div>
       </aside>
 
       <div class="demo__units">
