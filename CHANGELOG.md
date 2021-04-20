@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - css classes: _has
 - opener updated immediately
 - placeholders keep ph color
+- better demo
+- The problem readme section - TODO
+- Update README - TODO
 
 ## [1.1.2] - 2021-03-06
 ### Fixed

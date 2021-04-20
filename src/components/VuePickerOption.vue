@@ -16,6 +16,7 @@ import { computed, inject, ref, toRefs } from 'vue'
 // TODO: test if dynamically add options works
 // TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
 // TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
+// TODO: space should not close the dropdown
 
 export default {
   name: 'VuePickerOption',

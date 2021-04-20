@@ -10,12 +10,15 @@ customized, no annoying "options as arrays" props.
 
 This package currently works with Vue 2 versions only.
 
+## The Problem
+// TODO
+
 ## Demo
 See the demo: https://invisiburu.github.io/vue-picker/
 See the demo sources in [docs/](docs/)
 
 ## Installation
-In browser:
+### Using unpkg:
 ```html
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/@invisiburu/vue-picker"></script>
@@ -23,7 +26,14 @@ In browser:
 <link rel="stylesheet" href="https://unpkg.com/@invisiburu/vue-picker/dist/vue-picker.min.css">
 ```
 
-Using npm:
+```js
+const app = Vue.createApp(App)
+app.config.productionTip = false
+app.use(window.VuePicker)
+app.mount('#app')
+```
+
+### Using npm:
 ```bash
 npm i --save @invisiburu/vue-picker
 ```
