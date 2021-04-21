@@ -48,14 +48,12 @@ export default function useDropdown () {
   }
 
   const show = () => {
-    console.log('SHOW')
     isShown.value = true
     _unlistenOuterClick = _onClickOut(clickOutRef.value, () => hide(true))
     _onShowSubs.forEach(cb => cb())
   }
 
   const hide = (isOuterClick = false) => {
-    console.log('HIDE')
     isShown.value = false
     _unlistenOuterClick()
     _onHideSubs.forEach(cb => cb(isOuterClick))
