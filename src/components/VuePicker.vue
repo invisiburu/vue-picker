@@ -155,6 +155,7 @@ export default {
   grid: '. ico' / 1fr auto;
   gap: 10px;
   align-items: center;
+  min-height: inherit;
 
   &:focus {
     outline: none;
