@@ -13,6 +13,9 @@ This package currently works with Vue 2 versions only.
 ## The Problem
 // TODO
 
+## TypeScript support
+// TODO
+
 ## Demo
 See the demo: https://invisiburu.github.io/vue-picker/
 See the demo sources in [docs/](docs/)
