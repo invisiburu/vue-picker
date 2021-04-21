@@ -28,7 +28,7 @@
       </table>
     </div>
 
-    <aside class="demo__units">
+    <div class="demo__units">
       <div class="demo__unit">
         <p class="demo__lbl">Default select (val1)</p>
         <select class="demo__picker" v-model="selVal1">
@@ -88,7 +88,25 @@
           <option value="val-22">Value 22</option>
         </select>
       </div>
-    </aside>
+
+      <div class="demo__unit">
+        <p class="demo__lbl">Default select preset (val2)</p>
+        <select class="demo__picker" v-model="selVal2" disabled>
+          <option value="">Empty</option>
+          <option value="" disabled>Empty disabled</option>
+          <option value="val-1">Value 1</option>
+          <option value="val-2">Value 2</option>
+          <option value="val-3" disabled>Value 3 (disabled)</option>
+          <option value="val-4" disabled>Value 4 (disabled)</option>
+          <option value="val-5">Value 5</option>
+          <option value="val-6">Value 6</option>
+          <option value="val-7">Value 7</option>
+          <option value="val-8">Value 8</option>
+          <option value="val-9">Value 9</option>
+          <option value="val-10">Value 10</option>
+        </select>
+      </div>
+    </div>
 
     <div class="demo__units">
       <div class="demo__unit">
@@ -236,6 +254,50 @@
         </VuePicker>
       </div>
     </div>
+
+    <h3>Dynamic options:</h3>
+    <div class="demo__values">
+      <h4 class="demo__values-title">Dynamic values:</h4>
+      <table class="demo__table">
+        <tr class="table__table-row">
+          <th class="demo__table-cell">d-val1</th>
+        </tr>
+        <tr class="table__table-row">
+          <td class="demo__table-cell">{{ dynVal1 }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="demo__units">
+      <div class="demo__unit">
+        <p class="demo__lbl">Default select (d-val1)</p>
+        <select class="demo__picker" v-model="dynVal1">
+          <option value="">Empty</option>
+          <option v-for="opt of dynOpts1" :key="opt.value" :value="opt.value">
+            {{ opt.text }}
+          </option>
+        </select>
+      </div>
+
+      <div class="demo__unit">
+        <p class="demo__lbl">Custom select (d-val1)</p>
+        <VuePicker class="demo__picker" v-model="dynVal1">
+          <VuePickerOption value="">Empty</VuePickerOption>
+          <VuePickerOption
+            v-for="opt of dynOpts1"
+            :key="opt.value"
+            :value="opt.value"
+          >
+            {{ opt.text }}
+          </VuePickerOption>
+        </VuePicker>
+      </div>
+
+      <div class="demo__unit">
+        <p class="demo__lbl">Actions</p>
+        <button type="button" @click="genDynOpts1()">Re-generate d-val1</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -244,6 +306,29 @@ import { ref } from 'vue'
 
 export default {
   setup () {
+    const _randOptions = () => {
+      const len = _randInt(0, 100)
+      const suf = String(_randInt(0, 100))
+
+      const options = []
+      for (let idx = 0; idx < len; idx++) {
+        options.push({ value: `val-${suf}-${idx}`, text: `Value-${suf} #${idx}` })
+      }
+      console.log(options)
+      return options
+    }
+
+    const _randInt = (min, max) => {
+      return Math.floor(Math.random() * (max - min)) + min
+    }
+
+    const dynOpts1 = ref(_randOptions())
+    const dynVal1 = ref(undefined)
+    const genDynOpts1 = () => {
+      dynOpts1.value = _randOptions()
+      dynVal1.value = undefined
+    }
+
     return {
       selVal1: ref(undefined),
       selVal2: ref('val-2'),
@@ -251,6 +336,10 @@ export default {
       selVal4: ref(undefined),
       selVal5: ref(undefined),
       selVal6: ref(undefined),
+
+      dynOpts1,
+      dynVal1,
+      genDynOpts1,
     }
   }
 }
