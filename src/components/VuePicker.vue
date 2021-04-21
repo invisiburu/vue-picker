@@ -41,6 +41,8 @@ import useDropdown from '../composables/useDropdown.js'
 import useOptions from '../composables/useOptions.js'
 import useKeyboard from '../composables/useKeyboard.js'
 
+// spell-checker:words unregister
+
 export default {
   name: 'VuePicker',
 
@@ -100,6 +102,7 @@ export default {
     provide('pickerContext', {
       selectByValue: (value = '') => { options.selectByValue(value) },
       registerOption: (opt) => { options.registerOption(opt) },
+      unregisterOption: (opt) => { options.unregisterOption(opt) },
       hideDropdown: () => { dropdown.hide() },
     })
 

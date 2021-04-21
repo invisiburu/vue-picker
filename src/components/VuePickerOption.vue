@@ -12,11 +12,13 @@
 </template>
 
 <script>
-import { computed, inject, ref, toRefs } from 'vue'
+import { computed, inject, onBeforeUnmount, ref, toRefs } from 'vue'
 // TODO: test if dynamically add options works
 // TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
 // TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
 // TODO: space should not close the dropdown
+
+// spell-checker:words unregister
 
 export default {
   name: 'VuePickerOption',
@@ -32,8 +34,7 @@ export default {
     const btnRef = ref()
     const isSelected = ref(false)
 
-    const picker = inject('pickerContext')
-    picker.registerOption({
+    const option = {
       value: value.value,
       isDisabled: props.isDisabled,
       optHtml: computed(() => {
@@ -47,17 +48,23 @@ export default {
       ),
       setIsSelected: (val) => { isSelected.value = val },
       focus: () => { btnRef.value && btnRef.value.focus() },
-    })
-
-    const selectMyValue = () => {
-      picker.selectByValue(value.value)
-      picker.hideDropdown()
     }
+
+    const picker = inject('pickerContext')
+    picker.registerOption(option)
+
+    onBeforeUnmount(() => {
+      console.log('Unmounted', option)
+      picker.unregisterOption(option)
+    })
 
     return {
       btnRef,
       isSelected,
-      selectMyValue,
+      selectMyValue: () => {
+        picker.selectByValue(value.value)
+        picker.hideDropdown()
+      },
     }
   },
 }

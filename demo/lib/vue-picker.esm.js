@@ -214,6 +214,10 @@ function useOptions () {
   };
 
   var registerOption = function (opt) { _options.push(opt); };
+  var unregisterOption = function (opt) {
+    var idx = _options.indexOf(opt);
+    if (idx >= 0) { _options.splice(idx, 1); }
+  };
   var onSelect = function (cb) {
   if ( cb === void 0 ) cb = function () { };
  _onSelect = cb; };
@@ -223,11 +227,13 @@ function useOptions () {
     currentValue: currentValue,
     onSelect: onSelect,
     registerOption: registerOption,
+    unregisterOption: unregisterOption,
     selectByValue: selectByValue,
     selectNext: selectNext,
     selectPrev: selectPrev,
     selectFirst: selectFirst,
     selectLast: selectLast,
+    _options: _options,
   }
 }
 
@@ -321,6 +327,8 @@ function _onKeyDown (dropdown, options, event) {
   }
 }
 
+// spell-checker:words unregister
+
 var script$1 = {
   name: 'VuePicker',
 
@@ -387,6 +395,7 @@ var script$1 = {
       if ( value === void 0 ) value = '';
  options.selectByValue(value); },
       registerOption: function (opt) { options.registerOption(opt); },
+      unregisterOption: function (opt) { options.unregisterOption(opt); },
       hideDropdown: function () { dropdown.hide(); },
     });
 
@@ -412,6 +421,7 @@ var script$1 = {
         if (!modelValue.value && placeholder.value) { return placeholder.value }
         return options.current.value && options.current.value.optHtml
       }),
+      _options: options._options
     }
   },
 };
@@ -465,6 +475,8 @@ script$1.__file = "src/components/VuePicker.vue";
 // TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
 // TODO: space should not close the dropdown
 
+// spell-checker:words unregister
+
 var script = {
   name: 'VuePickerOption',
 
@@ -481,8 +493,7 @@ var script = {
     var btnRef = ref();
     var isSelected = ref(false);
 
-    var picker = inject('pickerContext');
-    picker.registerOption({
+    var option = {
       value: value.value,
       isDisabled: props.isDisabled,
       optHtml: computed(function () {
@@ -496,12 +507,24 @@ var script = {
       ),
       setIsSelected: function (val) { isSelected.value = val; },
       focus: function () { btnRef.value && btnRef.value.focus(); },
-    });
+    };
+
+    var picker = inject('pickerContext');
 
     var selectMyValue = function () {
       picker.selectByValue(value.value);
       picker.hideDropdown();
     };
+
+    onMounted(function () {
+      console.log('Mounted', option);
+      picker.registerOption(option);
+    });
+
+    onBeforeUnmount(function () {
+      console.log('Unmounted', option);
+      picker.unregisterOption(option);
+    });
 
     return {
       btnRef: btnRef,
