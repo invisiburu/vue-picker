@@ -1,4 +1,4 @@
-import { nextTick, onMounted, onUpdated, ref } from 'vue'
+import { inject, nextTick, onMounted, onUpdated, provide, ref } from 'vue'
 
 /**
  * @typedef {object} VuePickerOption
@@ -48,7 +48,7 @@ import { nextTick, onMounted, onUpdated, ref } from 'vue'
  * @param {import('vue').Ref<HTMLElement>} optsContRef
  * @returns {OptionsHookResult}
  */
-export default function useOptions (optsContRef) {
+export function useOptions (optsContRef) {
   /** @type {import('vue').Ref<VuePickerOption>} */
   const current = ref(null)
   /** @type {import('vue').Ref<string} */
@@ -98,14 +98,15 @@ export default function useOptions (optsContRef) {
   const selectFirst = () => selectNext(1, -1)
   const selectLast = () => selectNext(-1, _nodes.length)
 
-  const registerOption = (opt) => {
+  provide('registerOption', (opt) => {
     _nodesUpdateRequired = true
     _options[opt.value] = _options[opt.value] || opt
     return () => {
       _nodesUpdateRequired = true
       delete _options[opt.value]
     }
-  }
+  })
+  provide('selectByValue', selectByValue)
 
   onMounted(() => _updateNodes())
   onUpdated(() => nextTick(_updateNodes))
@@ -129,12 +130,17 @@ export default function useOptions (optsContRef) {
     current,
     currentValue,
     onSelect: (cb = () => { }) => { _onSelect = cb },
-    registerOption,
     selectByValue,
     selectNext,
     selectPrev,
     selectFirst,
     selectLast,
-    _getOpts: () => _options
+  }
+}
+
+export function useOptionsAsChild () {
+  return {
+    registerOption: inject('registerOption', (opt) => () => { opt }),
+    selectByValue: inject('selectByValue', (val) => { val })
   }
 }

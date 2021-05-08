@@ -40,10 +40,10 @@
 </template>
 
 <script>
-import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, toRefs, watch } from 'vue'
-import useDropdown from '../composables/useDropdown.js'
-import useOptions from '../composables/useOptions.js'
-import useKeyboard from '../composables/useKeyboard.js'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { useDropdown } from '../composables/useDropdown.js'
+import { useOptions } from '../composables/useOptions.js'
+import { useKeyboard } from '../composables/useKeyboard.js'
 
 export default {
   name: 'VuePicker',
@@ -100,14 +100,6 @@ export default {
     onBeforeUnmount(() => {
       keyboard.unlistenOn(openerRef.value)
       keyboard.unlisten(document)
-    })
-
-    provide('pickerContext', {
-      registerOption: options.registerOption,
-      selectAndHideDropdown: (value = '') => {
-        options.selectByValue(value)
-        dropdown.hide()
-      },
     })
 
     const _emitModelValue = (val = options.currentValue.value) => {

@@ -14,7 +14,9 @@
 </template>
 
 <script>
-import { computed, inject, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { useOptionsAsChild } from '../composables/useOptions.js'
+import { useDropdownAsChild } from '../composables/useDropdown.js'
 // TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
 // TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
 // TODO: unit tests
@@ -33,6 +35,9 @@ export default {
     const btnRef = ref()
     const isSelected = ref(false)
 
+    const { registerOption, selectByValue } = useOptionsAsChild()
+    const { hide: hideDropdown } = useDropdownAsChild()
+
     const option = {
       value: props.value,
       optHtml: computed(() => {
@@ -48,14 +53,16 @@ export default {
       focus: () => { btnRef.value && btnRef.value.focus() },
     }
 
-    const picker = inject('pickerContext')
-    const unregOpt = picker.registerOption(option)
+    const unregOpt = registerOption(option)
     onBeforeUnmount(unregOpt)
 
     return {
       btnRef,
       isSelected,
-      selectMyValue: () => { picker.selectAndHideDropdown(props.value) },
+      selectMyValue: () => {
+        selectByValue(props.value)
+        hideDropdown()
+      },
     }
   },
 }

@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, provide, inject } from 'vue'
 
 /**
  * @callback HideFunc
@@ -34,7 +34,7 @@ import { ref, onUnmounted } from 'vue'
 /**
  * @returns {DropdownHookResult}
  */
-export default function useDropdown () {
+export function useDropdown () {
   const isShown = ref(false)
   const clickOutRef = ref()
 
@@ -73,6 +73,8 @@ export default function useDropdown () {
     })
   }
 
+  provide('dropdownHide', () => hide())
+
   onUnmounted(() => {
     _unlistenOuterClick()
     _unsubs.forEach(unsub => unsub())
@@ -98,3 +100,8 @@ function _onClickOut (el, cb) {
   return () => { document.removeEventListener('click', handler, false) }
 }
 
+export function useDropdownAsChild () {
+  return {
+    hide: inject('dropdownHide', () => { }),
+  }
+}

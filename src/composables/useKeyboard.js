@@ -14,7 +14,7 @@
  * @param {import('./useOptions').OptionsHookResult} options
  * @returns {KeyboardHookResult}
  */
-export default function useKeyboard (dropdown, options) {
+export function useKeyboard (dropdown, options) {
   const listener = (event) => { _onKeyDown(dropdown, options, event) }
 
   /** @type {ListenUnlistenCallback} */

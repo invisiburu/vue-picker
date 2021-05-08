@@ -1,4 +1,4 @@
-import { ref, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, provide, computed, openBlock, createBlock, createVNode, renderSlot, withDirectives, vShow, inject, withKeys, withModifiers } from 'vue';
+import { inject, ref, provide, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, computed, openBlock, createBlock, createVNode, renderSlot, withDirectives, vShow, withKeys, withModifiers } from 'vue';
 
 /**
  * @callback HideFunc
@@ -75,6 +75,8 @@ function useDropdown () {
     });
   };
 
+  provide('dropdownHide', function () { return hide(); });
+
   onUnmounted(function () {
     _unlistenOuterClick();
     _unsubs.forEach(function (unsub) { return unsub(); });
@@ -98,6 +100,12 @@ function _onClickOut (el, cb) {
 
   document.addEventListener('click', handler, false);
   return function () { document.removeEventListener('click', handler, false); }
+}
+
+function useDropdownAsChild () {
+  return {
+    hide: inject('dropdownHide', function () { }),
+  }
 }
 
 /**
@@ -203,14 +211,15 @@ function useOptions (optsContRef) {
   var selectFirst = function () { return selectNext(1, -1); };
   var selectLast = function () { return selectNext(-1, _nodes.length); };
 
-  var registerOption = function (opt) {
+  provide('registerOption', function (opt) {
     _nodesUpdateRequired = true;
     _options[opt.value] = _options[opt.value] || opt;
     return function () {
       _nodesUpdateRequired = true;
       delete _options[opt.value];
     }
-  };
+  });
+  provide('selectByValue', selectByValue);
 
   onMounted(function () { return _updateNodes(); });
   onUpdated(function () { return nextTick(_updateNodes); });
@@ -236,13 +245,18 @@ function useOptions (optsContRef) {
     onSelect: function (cb) {
     if ( cb === void 0 ) cb = function () { };
  _onSelect = cb; },
-    registerOption: registerOption,
     selectByValue: selectByValue,
     selectNext: selectNext,
     selectPrev: selectPrev,
     selectFirst: selectFirst,
     selectLast: selectLast,
-    _getOpts: function () { return _options; }
+  }
+}
+
+function useOptionsAsChild () {
+  return {
+    registerOption: inject('registerOption', function (opt) { return function () { }; }),
+    selectByValue: inject('selectByValue', function (val) { })
   }
 }
 
@@ -398,16 +412,6 @@ var script$1 = {
       keyboard.unlisten(document);
     });
 
-    provide('pickerContext', {
-      registerOption: options.registerOption,
-      selectAndHideDropdown: function (value) {
-        if ( value === void 0 ) value = '';
-
-        options.selectByValue(value);
-        dropdown.hide();
-      },
-    });
-
     var _emitModelValue = function (val) {
       if ( val === void 0 ) val = options.currentValue.value;
 
@@ -500,6 +504,12 @@ var script = {
     var btnRef = ref();
     var isSelected = ref(false);
 
+    var ref$1 = useOptionsAsChild();
+    var registerOption = ref$1.registerOption;
+    var selectByValue = ref$1.selectByValue;
+    var ref$2 = useDropdownAsChild();
+    var hideDropdown = ref$2.hide;
+
     var option = {
       value: props.value,
       optHtml: computed(function () {
@@ -515,14 +525,16 @@ var script = {
       focus: function () { btnRef.value && btnRef.value.focus(); },
     };
 
-    var picker = inject('pickerContext');
-    var unregOpt = picker.registerOption(option);
+    var unregOpt = registerOption(option);
     onBeforeUnmount(unregOpt);
 
     return {
       btnRef: btnRef,
       isSelected: isSelected,
-      selectMyValue: function () { picker.selectAndHideDropdown(props.value); },
+      selectMyValue: function () {
+        selectByValue(props.value);
+        hideDropdown();
+      },
     }
   },
 };
