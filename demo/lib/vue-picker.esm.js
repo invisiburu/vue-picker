@@ -142,9 +142,7 @@ function useDropdownAsChild () {
 /**
  * @typedef {object} OptionsHookResult
  * @property {import('vue').Ref<VuePickerOption>} current
- * @property {import('vue').Ref<string>} currentValue
  * @property {OnSelectFunc} onSelect
- * @property {RegisterOptionFunc} registerOption
  * @property {SelectByValueFunc} selectByValue
  * @property {Function} selectNext
  * @property {Function} selectPrev
@@ -159,8 +157,6 @@ function useDropdownAsChild () {
 function useOptions (optsContRef) {
   /** @type {import('vue').Ref<VuePickerOption>} */
   var current = ref(null);
-  /** @type {import('vue').Ref<string} */
-  var currentValue = ref(null);
   /** @type {Object<string,VuePickerOption>} */
   var _options = {};
   /** @type {NodeListOf<HTMLButtonElement>} */
@@ -179,7 +175,6 @@ function useOptions (optsContRef) {
 
     if (!opt) {
       current.value = null;
-      currentValue.value = null;
       _currentIdx = -1;
       _onSelect(null);
       return
@@ -187,7 +182,6 @@ function useOptions (optsContRef) {
 
     opt.setIsSelected(true);
     current.value = opt;
-    currentValue.value = opt.value;
     _currentIdx = _getNodeIdx(opt.value);
     _onSelect(opt.value);
   };
@@ -241,7 +235,6 @@ function useOptions (optsContRef) {
 
   return {
     current: current,
-    currentValue: currentValue,
     onSelect: function (cb) {
     if ( cb === void 0 ) cb = function () { };
  _onSelect = cb; },
@@ -413,10 +406,14 @@ var script$1 = {
     });
 
     var _emitModelValue = function (val) {
-      if ( val === void 0 ) val = options.currentValue.value;
+      if ( val === void 0 ) val = _curOptVal();
 
       if (typeof val !== 'string') { return }
       emit('update:modelValue', val);
+    };
+
+    var _curOptVal = function () {
+      return options.current.value && options.current.value.value
     };
 
     return {
@@ -426,7 +423,7 @@ var script$1 = {
       dropdownClickOutRef: dropdown.clickOutRef,
       dropdownToggle: function () { return dropdown.toggle(); },
       curOpt: options.current,
-      curOptVal: options.currentValue,
+      curOptVal: computed(function () { return _curOptVal(); }),
       openerTxt: computed(function () {
         if (!modelValue.value && placeholder.value) { return placeholder.value }
         return options.current.value && options.current.value.optTxt
@@ -462,7 +459,11 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
       disabled: $props.isDisabled
     }, [
       renderSlot(_ctx.$slots, "opener", {
-        opener: { value: $setup.curOptVal, text: $setup.openerTxt, opt: $setup.curOpt }
+        opener: {
+          value: $setup.curOpt && $setup.curOpt.value,
+          text: $setup.openerTxt,
+          opt: $setup.curOpt,
+        }
       }, function () { return [
         createVNode("span", {
           class: "vue-picker__opener-txt",

@@ -34,9 +34,7 @@ import { inject, nextTick, onMounted, onUpdated, provide, ref } from 'vue'
 /**
  * @typedef {object} OptionsHookResult
  * @property {import('vue').Ref<VuePickerOption>} current
- * @property {import('vue').Ref<string>} currentValue
  * @property {OnSelectFunc} onSelect
- * @property {RegisterOptionFunc} registerOption
  * @property {SelectByValueFunc} selectByValue
  * @property {Function} selectNext
  * @property {Function} selectPrev
@@ -51,8 +49,6 @@ import { inject, nextTick, onMounted, onUpdated, provide, ref } from 'vue'
 export function useOptions (optsContRef) {
   /** @type {import('vue').Ref<VuePickerOption>} */
   const current = ref(null)
-  /** @type {import('vue').Ref<string} */
-  const currentValue = ref(null)
   /** @type {Object<string,VuePickerOption>} */
   const _options = {}
   /** @type {NodeListOf<HTMLButtonElement>} */
@@ -69,7 +65,6 @@ export function useOptions (optsContRef) {
 
     if (!opt) {
       current.value = null
-      currentValue.value = null
       _currentIdx = -1
       _onSelect(null)
       return
@@ -77,7 +72,6 @@ export function useOptions (optsContRef) {
 
     opt.setIsSelected(true)
     current.value = opt
-    currentValue.value = opt.value
     _currentIdx = _getNodeIdx(opt.value)
     _onSelect(opt.value)
   }
@@ -128,7 +122,6 @@ export function useOptions (optsContRef) {
 
   return {
     current,
-    currentValue,
     onSelect: (cb = () => { }) => { _onSelect = cb },
     selectByValue,
     selectNext,

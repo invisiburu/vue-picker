@@ -17,7 +17,11 @@
     >
       <slot
         name="opener"
-        :opener="{ value: curOptVal, text: openerTxt, opt: curOpt }"
+        :opener="{
+          value: curOpt && curOpt.value,
+          text: openerTxt,
+          opt: curOpt,
+        }"
       >
         <span class="vue-picker__opener-txt" v-html="openerHtml" />
       </slot>
@@ -102,9 +106,13 @@ export default {
       keyboard.unlisten(document)
     })
 
-    const _emitModelValue = (val = options.currentValue.value) => {
+    const _emitModelValue = (val = _curOptVal()) => {
       if (typeof val !== 'string') return
       emit('update:modelValue', val)
+    }
+
+    const _curOptVal = () => {
+      return options.current.value && options.current.value.value
     }
 
     return {
@@ -114,7 +122,7 @@ export default {
       dropdownClickOutRef: dropdown.clickOutRef,
       dropdownToggle: () => dropdown.toggle(),
       curOpt: options.current,
-      curOptVal: options.currentValue,
+      curOptVal: computed(() => _curOptVal()),
       openerTxt: computed(() => {
         if (!modelValue.value && placeholder.value) return placeholder.value
         return options.current.value && options.current.value.optTxt
