@@ -261,9 +261,11 @@
       <table class="demo__table">
         <tr class="table__table-row">
           <th class="demo__table-cell">d-val1</th>
+          <th class="demo__table-cell">d-val2</th>
         </tr>
         <tr class="table__table-row">
           <td class="demo__table-cell">{{ dynVal1 }}</td>
+          <td class="demo__table-cell">{{ dynVal2 }}</td>
         </tr>
       </table>
     </div>
@@ -299,6 +301,38 @@
         <button type="button" @click="genDynOpts1()">Re-generate d-val1</button>
       </div>
     </div>
+
+    <div class="demo__units">
+      <div class="demo__unit">
+        <p class="demo__lbl">Default select (d-val2)</p>
+        <select class="demo__picker" v-model="dynVal2">
+          <option value="">Empty</option>
+          <option v-for="opt of dynOpts2" :key="opt.value" :value="opt.value">
+            {{ opt.text }}
+          </option>
+        </select>
+      </div>
+
+      <div class="demo__unit">
+        <p class="demo__lbl">Custom select (d-val2)</p>
+        <VuePicker class="demo__picker" v-model="dynVal2">
+          <VuePickerOption value="">Empty</VuePickerOption>
+          <VuePickerOption
+            v-for="(opt, idx) in dynOpts2"
+            :key="opt.value"
+            :value="opt.value"
+            :data-idx="idx"
+          >
+            {{ opt.text }}
+          </VuePickerOption>
+        </VuePicker>
+      </div>
+
+      <div class="demo__unit">
+        <p class="demo__lbl">Actions</p>
+        <button type="button" @click="genDynOpts2()">Re-generate d-val2</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -307,13 +341,15 @@ import { ref } from 'vue'
 
 export default {
   setup () {
-    const _randOptions = () => {
-      const len = _randInt(3, 5)
-      const suf = String(_randInt(3, 5))
-
+    const _randOptions = (
+      suf = String(_randInt(1, 25)),
+      len = _randInt(1, 25),
+      getValue = (suf, idx) => `val-${suf}-${idx}`,
+      getText = (suf, idx) => `Value-${suf} #${idx}`,
+    ) => {
       const options = []
       for (let idx = 0; idx < len; idx++) {
-        options.push({ value: `val-${suf}-${idx}`, text: `Value-${suf} #${idx}` })
+        options.push({ value: getValue(suf, idx), text: getText(suf, idx) })
       }
       console.log('Generated options:', options)
       return options
@@ -330,6 +366,16 @@ export default {
       dynVal1.value = undefined
     }
 
+    let _dynVal2Counter = 0
+    const dynOpts2 = ref(_randOptions('X', 8, undefined))
+    const dynVal2 = ref(undefined)
+    const genDynOpts2 = () => {
+      _dynVal2Counter++
+      dynOpts2.value = _randOptions('X', 8, undefined, (suf, idx) => {
+        return `New (${_dynVal2Counter}) Value #${idx}`
+      })
+    }
+
     return {
       selVal1: ref(undefined),
       selVal2: ref('val-2'),
@@ -341,6 +387,10 @@ export default {
       dynOpts1,
       dynVal1,
       genDynOpts1,
+
+      dynOpts2,
+      dynVal2,
+      genDynOpts2,
     }
   }
 }
