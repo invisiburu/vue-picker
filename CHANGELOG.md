@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - opener updated immediately
 - placeholders keep ph color
 - better demo
+- fix v-for options
 - The problem readme section - TODO
 - Update README - TODO
 
