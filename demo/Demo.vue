@@ -297,8 +297,8 @@
       </div>
 
       <div class="demo__unit">
-        <p class="demo__lbl">Actions</p>
-        <button type="button" @click="genDynOpts1()">Re-generate d-val1</button>
+        <p class="demo__lbl">All options re-generated, value reset</p>
+        <button type="button" @click="genDynOpts1()">Re-generate</button>
       </div>
     </div>
 
@@ -329,8 +329,8 @@
       </div>
 
       <div class="demo__unit">
-        <p class="demo__lbl">Actions</p>
-        <button type="button" @click="genDynOpts2()">Re-generate d-val2</button>
+        <p class="demo__lbl">Options and value stay, texts re-generated</p>
+        <button type="button" @click="genDynOpts2()">Re-generate</button>
       </div>
     </div>
   </div>
