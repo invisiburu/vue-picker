@@ -1,4 +1,4 @@
-import { ref, onUnmounted, toRefs, watch, onMounted, nextTick, onBeforeUnmount, provide, computed, openBlock, createBlock, createVNode, renderSlot, withDirectives, vShow, inject } from 'vue';
+import { ref, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, provide, computed, openBlock, createBlock, createVNode, renderSlot, withDirectives, vShow, inject, withKeys, withModifiers } from 'vue';
 
 /**
  * @callback HideFunc
@@ -48,7 +48,6 @@ function useDropdown () {
   };
 
   var show = function () {
-    console.log('SHOW');
     isShown.value = true;
     _unlistenOuterClick = _onClickOut(clickOutRef.value, function () { return hide(true); });
     _onShowSubs.forEach(function (cb) { return cb(); });
@@ -57,7 +56,6 @@ function useDropdown () {
   var hide = function (isOuterClick) {
     if ( isOuterClick === void 0 ) isOuterClick = false;
 
-    console.log('HIDE');
     isShown.value = false;
     _unlistenOuterClick();
     _onHideSubs.forEach(function (cb) { return cb(isOuterClick); });
@@ -130,6 +128,7 @@ function _onClickOut (el, cb) {
 /**
  * @callback RegisterOptionFunc
  * @param {VuePickerOption} option
+ * @returns {Function}
  */
 
 /**
@@ -146,27 +145,43 @@ function _onClickOut (el, cb) {
  */
 
 /**
+ * @param {import('vue').Ref<HTMLElement>} optsContRef
  * @returns {OptionsHookResult}
  */
-function useOptions () {
+function useOptions (optsContRef) {
   /** @type {import('vue').Ref<VuePickerOption>} */
   var current = ref(null);
   /** @type {import('vue').Ref<string} */
   var currentValue = ref(null);
-  /** @type {VuePickerOption[]} */
-  var _options = [];
+  /** @type {Object<string,VuePickerOption>} */
+  var _options = {};
+  /** @type {NodeListOf<HTMLButtonElement>} */
+  var _nodes = [];
+  var _nodesUpdateRequired = false;
   var _currentIdx = -1;
   var _onSelect = function () { };
 
   var selectByValue = function (value) {
     if ( value === void 0 ) value = '';
 
-    var idx = _options.findIndex(function (el) { return el.value === value; });
-    if (_currentIdx === idx) { return }
+    var opt = _options[value];
+    if (opt === current.value) { return }
 
-    var opt = _options[idx];
-    if (!opt) { return _selectByIdx(-1) }
-    _selectByIdx(idx);
+    if (current.value) { current.value.setIsSelected(false); }
+
+    if (!opt) {
+      current.value = null;
+      currentValue.value = null;
+      _currentIdx = -1;
+      _onSelect(null);
+      return
+    }
+
+    opt.setIsSelected(true);
+    current.value = opt;
+    currentValue.value = opt.value;
+    _currentIdx = _getNodeIdx(opt.value);
+    _onSelect(opt.value);
   };
 
   var selectNext = function (offset, startIdx) {
@@ -174,66 +189,60 @@ function useOptions () {
     if ( startIdx === void 0 ) startIdx = _currentIdx;
 
     var nextIdx = startIdx + offset;
-    var nextOpt = _options[nextIdx];
-    console.log('NEXT');
-    if (!nextOpt) { return }
-    if (nextOpt.isDisabled) { return selectNext(offset, nextIdx) }
-    _selectByIdx(nextIdx);
+    var nextNode = _nodes[startIdx + offset];
+    if (!nextNode) { return }
+
+    if (nextNode.disabled) { return selectNext(offset, nextIdx) }
+
+    var nextVal = nextNode.dataset.value;
+    selectByValue(nextVal);
+    current.value.focus();
   };
 
-  var selectPrev = function () {
-    console.log('PREV');
-    if (_currentIdx < 0) { return selectLast() }
-    selectNext(-1);
-  };
+  var selectPrev = function () { return _currentIdx < 0 ? selectLast() : selectNext(-1); };
+  var selectFirst = function () { return selectNext(1, -1); };
+  var selectLast = function () { return selectNext(-1, _nodes.length); };
 
-  var selectFirst = function () {
-    console.log('FIRST');
-    selectNext(1, -1);
-  };
-
-  var selectLast = function () {
-    console.log('LAST');
-    selectNext(-1, _options.length);
-  };
-
-  var _selectByIdx = function (idx) {
-    if (current.value) { current.value.setIsSelected(false); }
-
-    _currentIdx = idx;
-    var option = _options[idx];
-
-    if (option) {
-      option.focus();
-      option.setIsSelected(true);
+  var registerOption = function (opt) {
+    _nodesUpdateRequired = true;
+    _options[opt.value] = _options[opt.value] || opt;
+    return function () {
+      _nodesUpdateRequired = true;
+      delete _options[opt.value];
     }
-
-    current.value = option;
-    currentValue.value = option && option.value;
-    _onSelect(option && option.value);
   };
 
-  var registerOption = function (opt) { _options.push(opt); };
-  var unregisterOption = function (opt) {
-    var idx = _options.indexOf(opt);
-    if (idx >= 0) { _options.splice(idx, 1); }
+  onMounted(function () { return _updateNodes(); });
+  onUpdated(function () { return nextTick(_updateNodes); });
+
+  var _getNodeIdx = function (value) {
+    for (var idx = 0; idx < _nodes.length; idx++) {
+      var node = _nodes[idx];
+      if (node.dataset.value === value) { return idx }
+    }
+    return -1
   };
-  var onSelect = function (cb) {
-  if ( cb === void 0 ) cb = function () { };
- _onSelect = cb; };
+
+  var _updateNodes = function () {
+    if (!_nodesUpdateRequired) { return }
+    _nodesUpdateRequired = false;
+    _nodes = optsContRef.value.querySelectorAll('.vue-picker-option');
+    if (current.value) { _currentIdx = _getNodeIdx(current.value); }
+  };
 
   return {
     current: current,
     currentValue: currentValue,
-    onSelect: onSelect,
+    onSelect: function (cb) {
+    if ( cb === void 0 ) cb = function () { };
+ _onSelect = cb; },
     registerOption: registerOption,
-    unregisterOption: unregisterOption,
     selectByValue: selectByValue,
     selectNext: selectNext,
     selectPrev: selectPrev,
     selectFirst: selectFirst,
     selectLast: selectLast,
-    _options: _options,
+    _getOpts: function () { return _options; }
   }
 }
 
@@ -327,8 +336,6 @@ function _onKeyDown (dropdown, options, event) {
   }
 }
 
-// spell-checker:words unregister
-
 var script$1 = {
   name: 'VuePicker',
 
@@ -349,9 +356,10 @@ var script$1 = {
     var placeholder = ref$2.placeholder;
     var isAutofocus = ref$2.isAutofocus;
     var openerRef = ref();
+    var dropdownRef = ref();
 
     var dropdown = useDropdown();
-    var options = useOptions();
+    var options = useOptions(dropdownRef);
     var keyboard = useKeyboard(dropdown, options);
 
     options.onSelect(function (value) {
@@ -376,7 +384,7 @@ var script$1 = {
 
       dropdown.onHide(function (isOuterClick) {
         keyboard.unlistenOn(document);
-        if (!isOuterClick) { openerRef.value.focus(); }
+        nextTick(function () { return openerRef.value.focus(); });
         _emitModelValue();
         emit('close', isOuterClick);
       });
@@ -391,12 +399,13 @@ var script$1 = {
     });
 
     provide('pickerContext', {
-      selectByValue: function (value) {
-      if ( value === void 0 ) value = '';
- options.selectByValue(value); },
-      registerOption: function (opt) { options.registerOption(opt); },
-      unregisterOption: function (opt) { options.unregisterOption(opt); },
-      hideDropdown: function () { dropdown.hide(); },
+      registerOption: options.registerOption,
+      selectAndHideDropdown: function (value) {
+        if ( value === void 0 ) value = '';
+
+        options.selectByValue(value);
+        dropdown.hide();
+      },
     });
 
     var _emitModelValue = function (val) {
@@ -408,6 +417,7 @@ var script$1 = {
 
     return {
       openerRef: openerRef,
+      dropdownRef: dropdownRef,
       dropdownIsShown: dropdown.isShown,
       dropdownClickOutRef: dropdown.clickOutRef,
       dropdownToggle: function () { return dropdown.toggle(); },
@@ -421,29 +431,31 @@ var script$1 = {
         if (!modelValue.value && placeholder.value) { return placeholder.value }
         return options.current.value && options.current.value.optHtml
       }),
-      _options: options._options
     }
   },
 };
 
 var _hoisted_1 = /*#__PURE__*/createVNode("i", { class: "vue-picker__opener-ico" }, null, -1 /* HOISTED */);
-var _hoisted_2 = { class: "vue-picker__dropdown" };
+var _hoisted_2 = {
+  ref: "dropdownRef",
+  class: "vue-picker__dropdown"
+};
 
 function render$1(_ctx, _cache, $props, $setup, $data, $options) {
   return (openBlock(), createBlock("div", {
+    ref: "dropdownClickOutRef",
     class: ["vue-picker", {
       'vue-picker_open': $setup.dropdownIsShown,
       'vue-picker_disabled': $props.isDisabled,
       'vue-picker_has-val': $props.placeholder ? $props.modelValue : $setup.curOptVal,
-    }],
-    ref: "dropdownClickOutRef"
+    }]
   }, [
     createVNode("button", {
+      ref: "openerRef",
       class: "vue-picker__opener",
       type: "button",
       onClick: _cache[1] || (_cache[1] = function ($event) { return ($setup.dropdownToggle()); }),
-      disabled: $props.isDisabled,
-      ref: "openerRef"
+      disabled: $props.isDisabled
     }, [
       renderSlot(_ctx.$slots, "opener", {
         opener: { value: $setup.curOptVal, text: $setup.openerTxt, opt: $setup.curOpt }
@@ -470,12 +482,10 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
 script$1.render = render$1;
 script$1.__file = "src/components/VuePicker.vue";
 
-// TODO: test if dynamically add options works
 // TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
 // TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
-// TODO: space should not close the dropdown
-
-// spell-checker:words unregister
+// TODO: unit tests
+// TODO: test optHtml, optTxt, props reactivity
 
 var script = {
   name: 'VuePickerOption',
@@ -487,22 +497,18 @@ var script = {
   },
 
   setup: function setup (props) {
-    var ref$1 = toRefs(props);
-    var value = ref$1.value;
-    var text = ref$1.text;
     var btnRef = ref();
     var isSelected = ref(false);
 
     var option = {
-      value: value.value,
-      isDisabled: props.isDisabled,
+      value: props.value,
       optHtml: computed(function () {
         var btnHtml = btnRef.value && btnRef.value.innerHTML;
-        return text.value || btnHtml || value.value
+        return props.text.value || btnHtml || props.value.value
       }),
       optTxt: computed(function () {
         var btnText = btnRef.value && btnRef.value.innerText;
-        return text.value || btnText || value.value
+        return props.text.value || btnText || props.value.value
       }
       ),
       setIsSelected: function (val) { isSelected.value = val; },
@@ -510,40 +516,29 @@ var script = {
     };
 
     var picker = inject('pickerContext');
-
-    var selectMyValue = function () {
-      picker.selectByValue(value.value);
-      picker.hideDropdown();
-    };
-
-    onMounted(function () {
-      console.log('Mounted', option);
-      picker.registerOption(option);
-    });
-
-    onBeforeUnmount(function () {
-      console.log('Unmounted', option);
-      picker.unregisterOption(option);
-    });
+    var unregOpt = picker.registerOption(option);
+    onBeforeUnmount(unregOpt);
 
     return {
       btnRef: btnRef,
       isSelected: isSelected,
-      selectMyValue: selectMyValue,
+      selectMyValue: function () { picker.selectAndHideDropdown(props.value); },
     }
   },
 };
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (openBlock(), createBlock("button", {
+    ref: "btnRef",
     class: ["vue-picker-option", { 'vue-picker-option_cur': $setup.isSelected }],
     type: "button",
     onClick: _cache[1] || (_cache[1] = function ($event) { return ($setup.selectMyValue($event)); }),
+    onKeydown: _cache[2] || (_cache[2] = withKeys(withModifiers(function () {}, ["prevent","stop"]), ["space"])),
     disabled: $props.isDisabled,
-    ref: "btnRef"
+    "data-value": $props.value
   }, [
     renderSlot(_ctx.$slots, "default")
-  ], 10 /* CLASS, PROPS */, ["disabled"]))
+  ], 42 /* CLASS, PROPS, HYDRATE_EVENTS */, ["disabled", "data-value"]))
 }
 
 script.render = render;

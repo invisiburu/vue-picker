@@ -91,7 +91,7 @@
 
       <div class="demo__unit">
         <p class="demo__lbl">Default select preset (val2)</p>
-        <select class="demo__picker" v-model="selVal2" disabled>
+        <select class="demo__picker" v-model="selVal2">
           <option value="">Empty</option>
           <option value="" disabled>Empty disabled</option>
           <option value="val-1">Value 1</option>
@@ -111,7 +111,7 @@
     <div class="demo__units">
       <div class="demo__unit">
         <p class="demo__lbl">VuePicker (val1)</p>
-        <VuePicker class="demo__picker" v-model="selVal1" autofocus>
+        <VuePicker class="demo__picker" v-model="selVal1" :isAutofocus="true">
           <VuePickerOption value="">Empty</VuePickerOption>
           <VuePickerOption value="" :isDisabled="true"
             >Empty disabled</VuePickerOption
@@ -284,9 +284,10 @@
         <VuePicker class="demo__picker" v-model="dynVal1">
           <VuePickerOption value="">Empty</VuePickerOption>
           <VuePickerOption
-            v-for="opt of dynOpts1"
+            v-for="(opt, idx) in dynOpts1"
             :key="opt.value"
             :value="opt.value"
+            :data-idx="idx"
           >
             {{ opt.text }}
           </VuePickerOption>
@@ -307,14 +308,14 @@ import { ref } from 'vue'
 export default {
   setup () {
     const _randOptions = () => {
-      const len = _randInt(0, 100)
-      const suf = String(_randInt(0, 100))
+      const len = _randInt(3, 5)
+      const suf = String(_randInt(3, 5))
 
       const options = []
       for (let idx = 0; idx < len; idx++) {
         options.push({ value: `val-${suf}-${idx}`, text: `Value-${suf} #${idx}` })
       }
-      console.log(options)
+      console.log('Generated options:', options)
       return options
     }
 

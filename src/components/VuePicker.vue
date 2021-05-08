@@ -1,19 +1,19 @@
 <template>
   <div
+    ref="dropdownClickOutRef"
     class="vue-picker"
     :class="{
       'vue-picker_open': dropdownIsShown,
       'vue-picker_disabled': isDisabled,
       'vue-picker_has-val': placeholder ? modelValue : curOptVal,
     }"
-    ref="dropdownClickOutRef"
   >
     <button
+      ref="openerRef"
       class="vue-picker__opener"
       type="button"
       @click="dropdownToggle()"
       :disabled="isDisabled"
-      ref="openerRef"
     >
       <slot
         name="opener"
@@ -27,7 +27,11 @@
       </slot>
     </button>
 
-    <div class="vue-picker__dropdown" v-show="dropdownIsShown">
+    <div
+      v-show="dropdownIsShown"
+      ref="dropdownRef"
+      class="vue-picker__dropdown"
+    >
       <slot name="dropdownInner">
         <slot />
       </slot>
@@ -40,8 +44,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, toRefs, w
 import useDropdown from '../composables/useDropdown.js'
 import useOptions from '../composables/useOptions.js'
 import useKeyboard from '../composables/useKeyboard.js'
-
-// spell-checker:words unregister
 
 export default {
   name: 'VuePicker',
@@ -58,9 +60,10 @@ export default {
   setup (props, { emit }) {
     const { modelValue, placeholder, isAutofocus } = toRefs(props)
     const openerRef = ref()
+    const dropdownRef = ref()
 
     const dropdown = useDropdown()
-    const options = useOptions()
+    const options = useOptions(dropdownRef)
     const keyboard = useKeyboard(dropdown, options)
 
     options.onSelect((value) => {
@@ -85,7 +88,7 @@ export default {
 
       dropdown.onHide((isOuterClick) => {
         keyboard.unlistenOn(document)
-        if (!isOuterClick) openerRef.value.focus()
+        nextTick(() => openerRef.value.focus())
         _emitModelValue()
         emit('close', isOuterClick)
       })
@@ -100,10 +103,11 @@ export default {
     })
 
     provide('pickerContext', {
-      selectByValue: (value = '') => { options.selectByValue(value) },
-      registerOption: (opt) => { options.registerOption(opt) },
-      unregisterOption: (opt) => { options.unregisterOption(opt) },
-      hideDropdown: () => { dropdown.hide() },
+      registerOption: options.registerOption,
+      selectAndHideDropdown: (value = '') => {
+        options.selectByValue(value)
+        dropdown.hide()
+      },
     })
 
     const _emitModelValue = (val = options.currentValue.value) => {
@@ -113,6 +117,7 @@ export default {
 
     return {
       openerRef,
+      dropdownRef,
       dropdownIsShown: dropdown.isShown,
       dropdownClickOutRef: dropdown.clickOutRef,
       dropdownToggle: () => dropdown.toggle(),

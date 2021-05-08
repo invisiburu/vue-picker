@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { nextTick, onMounted, onUpdated, ref } from 'vue'
 
 /**
  * @typedef {object} VuePickerOption
@@ -28,6 +28,7 @@ import { ref } from 'vue'
 /**
  * @callback RegisterOptionFunc
  * @param {VuePickerOption} option
+ * @returns {Function}
  */
 
 /**
@@ -44,76 +45,96 @@ import { ref } from 'vue'
  */
 
 /**
+ * @param {import('vue').Ref<HTMLElement>} optsContRef
  * @returns {OptionsHookResult}
  */
-export default function useOptions () {
+export default function useOptions (optsContRef) {
   /** @type {import('vue').Ref<VuePickerOption>} */
   const current = ref(null)
   /** @type {import('vue').Ref<string} */
   const currentValue = ref(null)
-  /** @type {VuePickerOption[]} */
-  const _options = []
+  /** @type {Object<string,VuePickerOption>} */
+  const _options = {}
+  /** @type {NodeListOf<HTMLButtonElement>} */
+  let _nodes = []
+  let _nodesUpdateRequired = false
   let _currentIdx = -1
   let _onSelect = () => { }
 
   const selectByValue = (value = '') => {
-    const idx = _options.findIndex(el => el.value === value)
-    if (_currentIdx === idx) return
+    const opt = _options[value]
+    if (opt === current.value) return
 
-    const opt = _options[idx]
-    if (!opt) return _selectByIdx(-1)
-    _selectByIdx(idx)
+    if (current.value) current.value.setIsSelected(false)
+
+    if (!opt) {
+      current.value = null
+      currentValue.value = null
+      _currentIdx = -1
+      _onSelect(null)
+      return
+    }
+
+    opt.setIsSelected(true)
+    current.value = opt
+    currentValue.value = opt.value
+    _currentIdx = _getNodeIdx(opt.value)
+    _onSelect(opt.value)
   }
 
   const selectNext = (offset = 1, startIdx = _currentIdx) => {
     const nextIdx = startIdx + offset
-    const nextOpt = _options[nextIdx]
-    if (!nextOpt) return
-    if (nextOpt.isDisabled) return selectNext(offset, nextIdx)
-    _selectByIdx(nextIdx)
+    const nextNode = _nodes[startIdx + offset]
+    if (!nextNode) return
+
+    if (nextNode.disabled) return selectNext(offset, nextIdx)
+
+    const nextVal = nextNode.dataset.value
+    selectByValue(nextVal, true)
+    current.value.focus()
   }
 
-  const selectPrev = () => {
-    if (_currentIdx < 0) return selectLast()
-    selectNext(-1)
-  }
+  const selectPrev = () => _currentIdx < 0 ? selectLast() : selectNext(-1)
+  const selectFirst = () => selectNext(1, -1)
+  const selectLast = () => selectNext(-1, _nodes.length)
 
-  const selectFirst = () => {
-    selectNext(1, -1)
-  }
-
-  const selectLast = () => {
-    selectNext(-1, _options.length)
-  }
-
-  const _selectByIdx = (idx) => {
-    if (current.value) current.value.setIsSelected(false)
-
-    _currentIdx = idx
-    const option = _options[idx]
-
-    if (option) {
-      option.focus()
-      option.setIsSelected(true)
+  const registerOption = (opt) => {
+    _nodesUpdateRequired = true
+    _options[opt.value] = _options[opt.value] || opt
+    return () => {
+      _nodesUpdateRequired = true
+      delete _options[opt.value]
     }
-
-    current.value = option
-    currentValue.value = option && option.value
-    _onSelect(option && option.value)
   }
 
-  const registerOption = (opt) => { _options.push(opt) }
-  const onSelect = (cb = () => { }) => { _onSelect = cb }
+  onMounted(() => _updateNodes())
+  onUpdated(() => nextTick(_updateNodes))
+
+  const _getNodeIdx = (value) => {
+    for (let idx = 0; idx < _nodes.length; idx++) {
+      const node = _nodes[idx]
+      if (node.dataset.value === value) return idx
+    }
+    return -1
+  }
+
+  const _updateNodes = () => {
+    if (!_nodesUpdateRequired) return
+    _nodesUpdateRequired = false
+    _nodes = optsContRef.value.querySelectorAll('.vue-picker-option')
+    if (current.value) _currentIdx = _getNodeIdx(current.value)
+  }
 
   return {
     current,
     currentValue,
-    onSelect,
+    onSelect: (cb = () => { }) => { _onSelect = cb },
     registerOption,
     selectByValue,
     selectNext,
     selectPrev,
     selectFirst,
     selectLast,
+    _getOpts: () => _options
   }
 }
