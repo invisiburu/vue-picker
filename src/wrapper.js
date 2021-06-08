@@ -1,10 +1,10 @@
 import { VuePicker, VuePickerOption } from './index.js'
 
-export function install (Vue) {
+function install (vm) {
   if (install.installed) return
   install.installed = true
-  Vue.component('VuePicker', VuePicker)
-  Vue.component('VuePickerOption', VuePickerOption)
+  vm.component('VuePicker', VuePicker)
+  vm.component('VuePickerOption', VuePickerOption)
 }
 
 if (typeof window !== 'undefined') {
@@ -13,4 +13,4 @@ if (typeof window !== 'undefined') {
   global.VuePicker = install
 }
 
-export { VuePicker, VuePickerOption }
+export { VuePicker, VuePickerOption, install }
