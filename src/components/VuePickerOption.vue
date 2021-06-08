@@ -17,7 +17,6 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useOptionsAsChild } from '../composables/useOptions.js'
 import { useDropdownAsChild } from '../composables/useDropdown.js'
-// TODO: unit tests
 
 export default {
   name: 'VuePickerOption',
