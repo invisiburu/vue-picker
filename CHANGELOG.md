@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+### Changed
+- Now supports only Vue3 version. Please use the lower versions of the package
+  for Vue2 applications.
+- Replaced `disabled` and `autofocus` attributes with `isDisabled` and
+  `isAutofocus` boolean props. So you can now only use `:isDisabled="true"`
+  instead of former possible forms like `disabled`, `disabled="disabled"` or
+  `disabled="true"`. Although their API felt similar to familiar HTML
+  attributes, the feature took too many resources for an incomparably
+  insignificant impact. The change affects both `VuePicker` and
+  `VuePickerOption`.
+- Renamed css modifier selectors:
+  - `.vue-picker--open` => `.vue-picker_open`
+  - `.vue-picker--disabled` => `.vue-picker_disabled`
+  - `.vue-picker--has-val` => `.vue-picker_has-val`
+- The opener's text is now immediately updated on navigation with up and down
+  arrows in the open dropdown.
+- Updated demo
+- Updated README.md
+
+### Fixed
+- Resolved an issue of wrong navigation order on dynamically updated option list
+- Resolved an issue of opener's wrongly text coloured as placeholder despite a
+  preselected valuable option.
+
 ## [1.1.2] - 2021-03-06
 ### Fixed
 - Deps security issues

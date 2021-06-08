@@ -1,50 +1,65 @@
 <template>
   <button
+    ref="btnRef"
     class="vue-picker-option"
     type="button"
-    :class="{ 'vue-picker-option--cur': isSelected }"
-    @click="selectMyValue()"
+    :class="{ 'vue-picker-option_cur': isSelected }"
+    @click="selectMyValue($event)"
+    @keydown.space.prevent.stop
     :disabled="isDisabled"
+    :data-value="value"
   >
     <slot />
   </button>
 </template>
 
 <script>
-import { attrs } from '../mixins/attrs'
-
-const attrsMixin = attrs('disabled')
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { useOptionsAsChild } from '../composables/useOptions.js'
+import { useDropdownAsChild } from '../composables/useDropdown.js'
 
 export default {
   name: 'VuePickerOption',
 
-  mixins: [attrsMixin],
-
   props: {
     value: { type: String, default: '' },
     text: { type: String, default: '' },
+    isDisabled: { type: Boolean, default: false },
   },
 
-  data () {
-    return { isSelected: false }
-  },
+  setup (props) {
+    const btnRef = ref()
+    const isSelected = ref(false)
 
-  inject: { picker: 'pickerContext' },
+    const { registerOption, selectByValue } = useOptionsAsChild()
+    const { hide: hideDropdown } = useDropdownAsChild()
 
-  computed: {
-    optHtml () { return this.text || this.$el.innerHTML || this.value },
-    optTxt () { return this.text || this.$el.innerText || this.value },
-  },
+    const option = {
+      value: props.value,
+      optHtml: computed(() => {
+        const btnHtml = btnRef.value && btnRef.value.innerHTML
+        return props.text || btnHtml || props.value
+      }),
+      optTxt: computed(() => {
+        const btnText = btnRef.value && btnRef.value.innerText
+        return props.text || btnText || props.value
+      }
+      ),
+      setIsSelected: (val) => { isSelected.value = val },
+      focus: () => { btnRef.value && btnRef.value.focus() },
+    }
 
-  created () {
-    this.picker.regOpt(this)
-  },
+    const unregOpt = registerOption(option)
+    onBeforeUnmount(unregOpt)
 
-  methods: {
-    selectMyValue () {
-      this.picker.selectByValue(this.value)
-      this.picker.hideDropdown()
-    },
+    return {
+      btnRef,
+      isSelected,
+      selectMyValue: () => {
+        selectByValue(props.value)
+        hideDropdown()
+      },
+    }
   },
 }
 </script>
@@ -58,7 +73,7 @@ export default {
   border: none;
   padding: 8px;
 
-  &--cur {
+  &_cur {
     font-weight: bold;
   }
 

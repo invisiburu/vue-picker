@@ -7,18 +7,10 @@ export function install (Vue) {
   Vue.component('VuePickerOption', VuePickerOption)
 }
 
-const plugin = {
-  install
-}
-
-let GlobalVue = null
 if (typeof window !== 'undefined') {
-  GlobalVue = window.Vue
+  window.VuePicker = install
 } else if (typeof global !== 'undefined') {
-  GlobalVue = global.Vue
-}
-if (GlobalVue) {
-  GlobalVue.use(plugin)
+  global.VuePicker = install
 }
 
 export { VuePicker, VuePickerOption }
