@@ -10,6 +10,10 @@ customizable.
 
 This package currently works with Vue 2 versions only.
 
+## Demo
+See the demo: https://invisiburu.github.io/vue-picker/
+See the demo sources in [demo/](demo/)
+
 ## The Problem
 When you think about a custom selector, you usually come to provide the
 options as an array. For sure, it resolves some reactivity issues by default
@@ -28,22 +32,11 @@ but a bit milder.
 
 `VuePicker` resolves all of these issues.
 
-## TypeScript support
+## TypeScript
 Currently, `VuePicker` comes with no TS declarations because of the poor TS
 support within Vue infrastructure. Please contact me or craft an issue if you
 think the times have changed or you have any other arguments of introducing
 TypeScript to the package. Also, you're welcome to contribute.
-
-## Issues
-In case of a bug or a suggestion, please report on the [Issues page](https://github.com/invisiburu/vue-picker/issues)
-or contact me by email.
-
-## Changelog
-Check the changes in [CHANGELOG.md](CHANGELOG.md)
-
-## Demo
-See the demo: https://invisiburu.github.io/vue-picker/
-See the demo sources in [demo/](demo/)
 
 ## Installation
 ### Using unpkg:
@@ -206,6 +199,12 @@ slot.
   Mostly the same as `text` param of the `opener` slot but does not respect
   `placeholder` attr of the picker.
 
+## Issues
+In case of a bug or a suggestion, please report on the [Issues page](https://github.com/invisiburu/vue-picker/issues)
+or contact me by email.
+
+## Changelog
+Check the changes in [CHANGELOG.md](CHANGELOG.md)
 
 ## TODO
 - JSDoc generated docs
