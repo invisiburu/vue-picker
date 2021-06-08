@@ -1,57 +1,9 @@
 import { inject, nextTick, onMounted, onUpdated, provide, ref } from 'vue'
 
-/**
- * @typedef {object} VuePickerOption
- * @property {string} value
- * @property {boolean} isDisabled
- * @property {Function} setIsSelected
- * @property {Function} focus
- * @property {import('vue').ComputedRef<string>} optTxt
- * @property {import('vue').ComputedRef<string>} optHtml
- */
-
-/**
- * @callback OnSelectFunc
- * @param {OnSelectCallback} cb
- */
-
-/**
- * @callback SelectByValueFunc
- * @param {string} value
- */
-
-/**
- * @callback OnSelectCallback
- * @param {string} value
- */
-
-/**
- * @callback RegisterOptionFunc
- * @param {VuePickerOption} option
- * @returns {Function}
- */
-
-/**
- * @typedef {object} OptionsHookResult
- * @property {import('vue').Ref<VuePickerOption>} current
- * @property {OnSelectFunc} onSelect
- * @property {SelectByValueFunc} selectByValue
- * @property {Function} selectNext
- * @property {Function} selectPrev
- * @property {Function} selectFirst
- * @property {Function} selectLast
- */
-
-/**
- * @param {import('vue').Ref<HTMLElement>} optsContRef
- * @returns {OptionsHookResult}
- */
 export function useOptions (optsContRef) {
-  /** @type {import('vue').Ref<VuePickerOption>} */
   const current = ref(null)
-  /** @type {Object<string,VuePickerOption>} */
   const _options = {}
-  /** @type {NodeListOf<HTMLButtonElement>} */
+
   let _nodes = []
   let _nodesUpdateRequired = false
   let _currentIdx = -1

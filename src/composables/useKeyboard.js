@@ -1,28 +1,10 @@
-/**
- * @callback ListenUnlistenCallback
- * @param {HTMLElement} element
- */
-
-/**
- * @typedef {object} KeyboardHookResult
- * @property {ListenUnlistenCallback} listenOn
- * @property {ListenUnlistenCallback} unlistenOn
- */
-
-/**
- * @param {import('./useDropdown').DropdownHookResult} dropdown
- * @param {import('./useOptions').OptionsHookResult} options
- * @returns {KeyboardHookResult}
- */
 export function useKeyboard (dropdown, options) {
   const listener = (event) => { _onKeyDown(dropdown, options, event) }
 
-  /** @type {ListenUnlistenCallback} */
   const listenOn = (htmlEl) => {
     htmlEl.addEventListener('keydown', listener)
   }
 
-  /** @type {ListenUnlistenCallback} */
   const unlistenOn = (htmlEl) => {
     htmlEl.removeEventListener('keydown', listener)
   }
@@ -30,11 +12,6 @@ export function useKeyboard (dropdown, options) {
   return { listenOn, unlistenOn }
 }
 
-/**
- * @param {import('./useDropdown').DropdownHookResult} dropdown
- * @param {import('./useOptions').OptionsHookResult} options
- * @param {KeyboardEvent} event
- */
 function _onKeyDown (dropdown, options, event) {
   switch (event.key) {
     case 'Esc':
