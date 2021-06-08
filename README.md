@@ -12,6 +12,7 @@ This package currently works with Vue 2 versions only.
 
 ## Demo
 See the demo: https://invisiburu.github.io/vue-picker/
+
 See the demo sources in [demo/](demo/)
 
 ## The Problem
