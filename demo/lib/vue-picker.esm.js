@@ -1,39 +1,5 @@
 import { inject, ref, provide, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, computed, openBlock, createBlock, createVNode, renderSlot, withDirectives, vShow, withKeys, withModifiers } from 'vue';
 
-/**
- * @callback HideFunc
- * @param {boolean} [isOuterClick]
- */
-
-/**
- * @callback OnShowFunc
- * @param {Function} cb
- */
-
-/**
- * @callback OnHideFunc
- * @param {OnHideCallback} cb
- */
-
-/**
- * @callback OnHideCallback
- * @param {boolean} [isOuterClick]
- */
-
-/**
- * @typedef {object} DropdownHookResult
- * @property {import('vue').Ref<boolean>} isShown
- * @property {import('vue').Ref<HTMLElement>} clickOutRef
- * @property {Function} toggle
- * @property {Function} show
- * @property {HideFunc} hide
- * @property {OnShowFunc} OnShowFunc
- * @property {OnHideFunc} onHide
- */
-
-/**
- * @returns {DropdownHookResult}
- */
 function useDropdown () {
   var isShown = ref(false);
   var clickOutRef = ref();
@@ -108,58 +74,10 @@ function useDropdownAsChild () {
   }
 }
 
-/**
- * @typedef {object} VuePickerOption
- * @property {string} value
- * @property {boolean} isDisabled
- * @property {Function} setIsSelected
- * @property {Function} focus
- * @property {import('vue').ComputedRef<string>} optTxt
- * @property {import('vue').ComputedRef<string>} optHtml
- */
-
-/**
- * @callback OnSelectFunc
- * @param {OnSelectCallback} cb
- */
-
-/**
- * @callback SelectByValueFunc
- * @param {string} value
- */
-
-/**
- * @callback OnSelectCallback
- * @param {string} value
- */
-
-/**
- * @callback RegisterOptionFunc
- * @param {VuePickerOption} option
- * @returns {Function}
- */
-
-/**
- * @typedef {object} OptionsHookResult
- * @property {import('vue').Ref<VuePickerOption>} current
- * @property {OnSelectFunc} onSelect
- * @property {SelectByValueFunc} selectByValue
- * @property {Function} selectNext
- * @property {Function} selectPrev
- * @property {Function} selectFirst
- * @property {Function} selectLast
- */
-
-/**
- * @param {import('vue').Ref<HTMLElement>} optsContRef
- * @returns {OptionsHookResult}
- */
 function useOptions (optsContRef) {
-  /** @type {import('vue').Ref<VuePickerOption>} */
   var current = ref(null);
-  /** @type {Object<string,VuePickerOption>} */
   var _options = {};
-  /** @type {NodeListOf<HTMLButtonElement>} */
+
   var _nodes = [];
   var _nodesUpdateRequired = false;
   var _currentIdx = -1;
@@ -253,31 +171,13 @@ function useOptionsAsChild () {
   }
 }
 
-/**
- * @callback ListenUnlistenCallback
- * @param {HTMLElement} element
- */
-
-/**
- * @typedef {object} KeyboardHookResult
- * @property {ListenUnlistenCallback} listenOn
- * @property {ListenUnlistenCallback} unlistenOn
- */
-
-/**
- * @param {import('./useDropdown').DropdownHookResult} dropdown
- * @param {import('./useOptions').OptionsHookResult} options
- * @returns {KeyboardHookResult}
- */
 function useKeyboard (dropdown, options) {
   var listener = function (event) { _onKeyDown(dropdown, options, event); };
 
-  /** @type {ListenUnlistenCallback} */
   var listenOn = function (htmlEl) {
     htmlEl.addEventListener('keydown', listener);
   };
 
-  /** @type {ListenUnlistenCallback} */
   var unlistenOn = function (htmlEl) {
     htmlEl.removeEventListener('keydown', listener);
   };
@@ -285,11 +185,6 @@ function useKeyboard (dropdown, options) {
   return { listenOn: listenOn, unlistenOn: unlistenOn }
 }
 
-/**
- * @param {import('./useDropdown').DropdownHookResult} dropdown
- * @param {import('./useOptions').OptionsHookResult} options
- * @param {KeyboardEvent} event
- */
 function _onKeyDown (dropdown, options, event) {
   switch (event.key) {
     case 'Esc':
