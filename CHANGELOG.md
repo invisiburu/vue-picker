@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2021-06-09
+### Fixed
+- UNPKG version example
+
 ## [2.0.0] - 2021-06-08
 ### Changed
 - Now supports only Vue3 version. Please use the lower versions of the package
@@ -63,7 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README.md
 - LICENSE
 
-[UNRELEASED]: https://github.com/invisiburu/vue-picker/compare/v2.0.0...HEAD
+[UNRELEASED]: https://github.com/invisiburu/vue-picker/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/invisiburu/vue-picker/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/invisiburu/vue-picker/compare/v1.1.2...v2.0.0
 [1.1.2]: https://github.com/invisiburu/vue-picker/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/invisiburu/vue-picker/compare/v1.1.0...v1.1.1
