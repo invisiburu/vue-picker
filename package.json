@@ -21,7 +21,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "lint": "vue-cli-service lint",
-    "build": "npm run build:umd & npm run build:unpkg & npm run build:es & npm run build:es:demo & build:demo",
+    "build": "npm run build:umd & npm run build:unpkg & npm run build:es & npm run build:es:demo & npm run build:demo",
     "build:demo": "vue-cli-service build",
     "build:es": "rollup --config build/rollup.config.js --format es --file dist/vue-picker.esm.js",
     "build:es:demo": "rollup --config build/rollup.config.js --format es --file demo/lib/vue-picker.esm.js",
@@ -37,17 +37,18 @@
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-commonjs": "^18.0.0",
-    "@vue/cli-plugin-eslint": "~4.5.6",
-    "@vue/cli-service": "~4.5.6",
+    "@vue/cli-plugin-eslint": "5.0.0-beta.1",
+    "@vue/cli-service": "5.0.0-beta.1",
     "@vue/compiler-sfc": "^3.0.0-beta.1",
     "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0-alpha.0",
+    "eslint": "^7.28.0",
+    "eslint-plugin-vue": "^7.10.0",
     "rollup": "^2.42.4",
-    "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-scss": "^2.6.1",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-vue": "^6.0.0",
+    "postcss": "^8.3.0",
+    "core-js": "^3.6.5",
     "vue": "^3.0.7"
   },
   "peerDependencies": {
