@@ -2,28 +2,70 @@
 
 A native-like select field, but better.
 
-Mostly behaves like native `<select>` but accepts custom
-markup for the options and the opener button.
+Mostly behaves like native `<select>` but accepts custom markup for the options
+and the opener button.
 
-The options can be navigated from the keyboard, the opener text can be easily
-customized, no annoying "options as arrays" props.
+The options are navigatable from the keyboard. The opener text is easily
+customizable.
 
 This package currently works with Vue 2 versions only.
 
+## The Problem
+When you think about a custom selector, you usually come to provide the
+options as an array. For sure, it resolves some reactivity issues by default
+but also has some pitfalls.
+
+One such pitfall that in most cases, you need to map your data list to an
+array of something like `{ label, value }` thus spending extra resources.
+Additionally, you write dummy code to display an options selector.
+
+The second pitfall is that default `<select>` provides a more natural way
+to render lists - just by giving the elements by themselves, not the arrays.
+
+The third pitfall is the poor customization capabilities of the options.
+Which mostly looks similar to the problem of default `<select>`
+but a bit milder.
+
+`VuePicker` resolves all of these issues.
+
+## TypeScript support
+Currently, `VuePicker` comes with no TS declarations because of the poor TS
+support within Vue infrastructure. Please contact me or craft an issue if you
+think the times have changed or you have any other arguments of introducing
+TypeScript to the package. Also, you're welcome to contribute.
+
+## Issues
+In case of a bug or a suggestion, please report on the [Issues page](https://github.com/invisiburu/vue-picker/issues)
+or contact me by email.
+
+## Changelog
+Check the changes in [CHANGELOG.md](CHANGELOG.md)
+
 ## Demo
 See the demo: https://invisiburu.github.io/vue-picker/
-See the demo sources in [docs/](docs/)
+See the demo sources in [demo/](demo/)
 
 ## Installation
-In browser:
+### Using unpkg:
 ```html
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/@invisiburu/vue-picker"></script>
 <!-- optional css -->
 <link rel="stylesheet" href="https://unpkg.com/@invisiburu/vue-picker/dist/vue-picker.min.css">
+
+<body>
+  <div id="#app"></div>
+  <!-- ... -->
+
+  <script>
+    const app = Vue.createApp(App)
+    app.use(window.VuePicker)
+    app.mount('#app')
+  </script>
+</body>
 ```
 
-Using npm:
+### Using npm:
 ```bash
 npm i --save @invisiburu/vue-picker
 ```
@@ -34,41 +76,41 @@ import { VuePicker, VuePickerOption } from '@invisiburu/vue-picker'
 // optional css
 import '@invisiburu/vue-picker/dist/vue-picker.min.css'
 
-
-Vue.component('VuePicker', VuePicker)
-Vue.component('VuePickerOption', VuePickerOption)
+const app = createApp(/* ... */)
+app.component('VuePicker', VuePicker)
+app.component('VuePickerOption', VuePickerOption)
 ```
 
 ## Usage
 ### Basic:
 ```html
-<vue-picker v-model="color" autofocus>
-  <vue-picker-option value="">Empty</vue-picker-option>
-  <vue-picker-option value="red">Red</vue-picker-option>
-  <vue-picker-option value="green">Green</vue-picker-option>
-  <vue-picker-option value="blue">Blue</vue-picker-option>
-  <vue-picker-option value="yellow" disabled>Yellow</vue-picker-option>
-  <vue-picker-option value="teal" text="Teal">
+<VuePicker v-model="color" :isAutofocus="true">
+  <VuePickerOption value="">Empty</VuePickerOption>
+  <VuePickerOption value="red">Red</VuePickerOption>
+  <VuePickerOption value="green">Green</VuePickerOption>
+  <VuePickerOption value="blue">Blue</VuePickerOption>
+  <VuePickerOption value="yellow" :isDisabled="true">Yellow</VuePickerOption>
+  <VuePickerOption value="teal" text="Teal">
     How about teal (Teal will be shown instead)
-  </vue-picker-option>
-</vue-picker>
+  </VuePickerOption>
+</VuePicker>
 ```
 
 ### Custom options:
 ```html
 <template>
-  <vue-picker v-model="variant">
-    <vue-picker-option value="italic-bold">
+  <VuePicker v-model="variant">
+    <VuePickerOption value="italic-bold">
       Some <i>italics</i> or <b>bold</b>?
-    </vue-picker-option>
+    </VuePickerOption>
 
-    <vue-picker-option value="special" text="Special! Yes!">
+    <VuePickerOption value="special" text="Special! Yes!">
       <div class="grid">
         <span class="title">Or something more special?</span>
         <span class="subtitle">I am a subheading!</span>
       </div>
-    </vue-picker-option>
-  </vue-picker>
+    </VuePickerOption>
+  </VuePicker>
 </template>
 
 <style scoped>
@@ -93,7 +135,7 @@ Vue.component('VuePickerOption', VuePickerOption)
 ### Custom opener:
 ```html
 <template>
-  <vue-picker v-model="custom">
+  <VuePicker v-model="custom">
     <template #opener="{ opener }">
       <span>
         <i>{{ opener.value }}</i>
@@ -101,17 +143,17 @@ Vue.component('VuePickerOption', VuePickerOption)
       </span>
     </template>
 
-    <vue-picker-option value="value-1">Value 1</vue-picker-option>
-    <vue-picker-option value="value-2">Value 2</vue-picker-option>
-  </vue-picker>
+    <VuePickerOption value="value-1">Value 1</VuePickerOption>
+    <VuePickerOption value="value-2">Value 2</VuePickerOption>
+  </VuePicker>
 </template>
 ```
 
 ## Api
 ### `VuePicker`
 #### Props:
-- `autofocus` - focus the opener on mount.
-- `disabled` - disable the component.
+- `isAutofocus` - focus the opener on mount.
+- `isDisabled` - disable the component.
 - `value` - the value, should be a string. The behaviour is not defined for
   values that do not exist within provided options.
 - `placeholder` - a text to show when `value` is null, undefined or an
@@ -134,7 +176,7 @@ Vue.component('VuePickerOption', VuePickerOption)
 
 ### `VuePickerOption`
 #### Props:
-- `disabled` - disable the option. Disabled options cannot be picked or
+- `isDisabled` - disable the option. Disabled options cannot be picked or
   navigated.
 - `value` - value to set on when the option selected.
 - `text` - text to be displayed instead of the content of the `default` slot.

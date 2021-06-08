@@ -1,33 +1,29 @@
 <template>
   <div
+    ref="dropdownClickOutRef"
     class="vue-picker"
     :class="{
-      'vue-picker--open': isDropdownShown,
-      'vue-picker--disabled': isDisabled,
-      'vue-picker--has-val': curOptVal,
+      'vue-picker_open': dropdownIsShown,
+      'vue-picker_disabled': isDisabled,
+      'vue-picker_has-val': placeholder ? modelValue : curOptVal,
     }"
   >
     <button
+      ref="openerRef"
       class="vue-picker__opener"
       type="button"
-      ref="opener"
-      @click="toggleDropdown()"
-      @keydown.up.alt.stop.prevent="toggleDropdown()"
-      @keydown.up.exact.stop.prevent="selectPrev()"
-      @keydown.down.alt.stop.prevent="toggleDropdown()"
-      @keydown.down.exact.stop.prevent="selectNext()"
-      @keydown.home.stop.prevent="selectFirst()"
-      @keydown.end.stop.prevent="selectLast()"
+      @click="dropdownToggle()"
       :disabled="isDisabled"
     >
       <slot
         name="opener"
-        :opener="{ value, text: openerTxt, opt: curOpt }"
+        :opener="{
+          value: curOpt && curOpt.value,
+          text: openerTxt,
+          opt: curOpt,
+        }"
       >
-        <span
-          class="vue-picker__opener-txt"
-          v-html="openerHtml"
-        />
+        <span class="vue-picker__opener-txt" v-html="openerHtml" />
       </slot>
 
       <slot name="openerIco">
@@ -36,127 +32,106 @@
     </button>
 
     <div
+      v-show="dropdownIsShown"
+      ref="dropdownRef"
       class="vue-picker__dropdown"
-      v-show="isDropdownShown"
     >
       <slot name="dropdownInner">
         <slot />
       </slot>
     </div>
-
   </div>
 </template>
 
 <script>
-import dropdownControls from '../mixins/dropdown-controls'
-import keyControls from '../mixins/key-controls'
-import { attrs } from '../mixins/attrs'
-
-const attrsMixin = attrs('disabled', 'autofocus')
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { useDropdown } from '../composables/useDropdown.js'
+import { useOptions } from '../composables/useOptions.js'
+import { useKeyboard } from '../composables/useKeyboard.js'
 
 export default {
   name: 'VuePicker',
 
-  mixins: [attrsMixin, dropdownControls, keyControls],
+  emits: ['open', 'close', 'update:modelValue'],
 
   props: {
-    value: { type: String, default: '' },
+    modelValue: { type: String, default: '' },
     placeholder: { type: String, default: '' },
+    isDisabled: { type: Boolean, default: false },
+    isAutofocus: { type: Boolean, default: false },
   },
 
-  provide () {
-    return { 'pickerContext': this }
-  },
+  setup (props, { emit }) {
+    const { modelValue, placeholder, isAutofocus } = toRefs(props)
+    const openerRef = ref()
+    const dropdownRef = ref()
 
-  data () {
-    return {
-      curOptIdx: -1,
-      opts: [],
-    }
-  },
+    const dropdown = useDropdown()
+    const options = useOptions(dropdownRef)
+    const keyboard = useKeyboard(dropdown, options)
 
-  computed: {
-    curOpt () { return this.opts[this.curOptIdx] },
-    curOptVal () { return (this.curOpt || {}).value },
-    ph () { return !this.value && this.placeholder },
-    openerTxt () { return this.ph || (this.curOpt || {}).optTxt },
-    openerHtml () { return this.ph || (this.curOpt || {}).optHtml },
-  },
-
-  watch: {
-    value (nV, oV) { (nV !== oV) && this.selectByValue(this.value) },
-  },
-
-  mounted () {
-    this.onDropdownShow(() => {
-      if (this.curOpt) this.$nextTick(() => this.curOpt.$el.focus())
-      else this.$refs.opener.blur()
-      this.$emit('open')
+    options.onSelect((value) => {
+      if (dropdown.isShown.value) return
+      _emitModelValue(value !== undefined ? value : modelValue.value)
     })
 
-    this.onDropdownHide(isOuterClick => {
-      if (!isOuterClick) this.$refs.opener.focus()
-      this.emitCurOptVal()
-      this.$emit('close', isOuterClick)
+    watch(modelValue, (nV, oV) => { nV !== oV && options.selectByValue(nV) })
+
+    onMounted(() => {
+      keyboard.listenOn(openerRef.value)
+
+      dropdown.onShow(() => {
+        keyboard.listenOn(document)
+        if (options.current.value) {
+          nextTick(() => options.current.value.focus())
+        } else {
+          openerRef.value.blur()
+        }
+        emit('open')
+      })
+
+      dropdown.onHide((isOuterClick) => {
+        keyboard.unlistenOn(document)
+        nextTick(() => openerRef.value.focus())
+        _emitModelValue()
+        emit('close', isOuterClick)
+      })
+
+      if (isAutofocus.value) { openerRef.value.focus() }
+      if (modelValue.value) { options.selectByValue(modelValue.value) }
     })
 
-    if (this.isAutofocus) { this.$refs.opener.focus() }
-    if (this.value) { this.selectByValue(this.value) }
-  },
+    onBeforeUnmount(() => {
+      keyboard.unlistenOn(openerRef.value)
+      keyboard.unlisten(document)
+    })
 
-  methods: {
-    selectByIdx (idx) {
-      if (this.curOpt) this.curOpt.isSelected = false
-
-      this.curOptIdx = idx
-
-      if (this.curOpt) {
-        this.curOpt.$el.focus()
-        this.curOpt.isSelected = true
-      }
-
-      if (this.isDropdownShown) return
-      this.emitCurOptVal(this.curOpt ? this.curOpt.value : this.value)
-    },
-
-    selectByValue (value = '') {
-      const idx = this.opts.findIndex(el => el.value === value)
-      if (this.curOptIdx === idx) return
-
-      const opt = this.opts[idx]
-      if (!opt) return this.selectByIdx(-1)
-      this.selectByIdx(idx)
-    },
-
-    selectNext (offset = 1, startIdx = this.curOptIdx) {
-      const nextIdx = startIdx + offset
-      const nextOpt = this.opts[nextIdx]
-      if (!nextOpt) return
-      if (nextOpt.isDisabled) return this.selectNext(offset, nextIdx)
-      this.selectByIdx(nextIdx)
-    },
-
-    selectPrev () {
-      if (this.curOptIdx < 0) return this.selectLast()
-      this.selectNext(-1)
-    },
-
-    selectFirst () {
-      this.selectNext(1, -1)
-    },
-
-    selectLast () {
-      this.selectNext(-1, this.opts.length)
-    },
-
-    emitCurOptVal (val = this.curOptVal) {
+    const _emitModelValue = (val = _curOptVal()) => {
       if (typeof val !== 'string') return
-      this.$emit('input', val)
-    },
+      emit('update:modelValue', val)
+    }
 
-    regOpt (opt) {
-      this.opts.push(opt)
-    },
+    const _curOptVal = () => {
+      return options.current.value && options.current.value.value
+    }
+
+    return {
+      openerRef,
+      dropdownRef,
+      dropdownIsShown: dropdown.isShown,
+      dropdownClickOutRef: dropdown.clickOutRef,
+      dropdownToggle: () => dropdown.toggle(),
+      curOpt: options.current,
+      curOptVal: computed(() => _curOptVal()),
+      openerTxt: computed(() => {
+        if (!modelValue.value && placeholder.value) return placeholder.value
+        return options.current.value && options.current.value.optTxt
+      }),
+      openerHtml: computed(() => {
+        if (!modelValue.value && placeholder.value) return placeholder.value
+        return options.current.value && options.current.value.optHtml
+      }),
+    }
   },
 }
 </script>
@@ -172,7 +147,7 @@ export default {
   display: inline-block;
   position: relative;
 
-  &--disabled {
+  &_disabled {
     --col-border: var(--col-disabled);
   }
 }
@@ -188,6 +163,7 @@ export default {
   grid: '. ico' / 1fr auto;
   gap: 10px;
   align-items: center;
+  min-height: inherit;
 
   &:focus {
     outline: none;
@@ -200,7 +176,7 @@ export default {
     cursor: not-allowed;
   }
 
-  .vue-picker:not(.vue-picker--has-val) > & {
+  .vue-picker:not(.vue-picker_has-val) > & {
     color: var(--col-placeholder);
   }
 }
