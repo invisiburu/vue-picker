@@ -487,10 +487,7 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
 script$1.render = render$1;
 script$1.__file = "src/components/VuePicker.vue";
 
-// TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
-// TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
 // TODO: unit tests
-// TODO: test optHtml, optTxt, props reactivity
 
 var script = {
   name: 'VuePickerOption',
@@ -515,11 +512,11 @@ var script = {
       value: props.value,
       optHtml: computed(function () {
         var btnHtml = btnRef.value && btnRef.value.innerHTML;
-        return props.text.value || btnHtml || props.value.value
+        return props.text || btnHtml || props.value
       }),
       optTxt: computed(function () {
         var btnText = btnRef.value && btnRef.value.innerText;
-        return props.text.value || btnText || props.value.value
+        return props.text || btnText || props.value
       }
       ),
       setIsSelected: function (val) { isSelected.value = val; },

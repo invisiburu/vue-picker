@@ -286,10 +286,9 @@
         <VuePicker class="demo__picker" v-model="dynVal1">
           <VuePickerOption value="">Empty</VuePickerOption>
           <VuePickerOption
-            v-for="(opt, idx) in dynOpts1"
+            v-for="opt in dynOpts1"
             :key="opt.value"
             :value="opt.value"
-            :data-idx="idx"
           >
             {{ opt.text }}
           </VuePickerOption>
@@ -318,10 +317,10 @@
         <VuePicker class="demo__picker" v-model="dynVal2">
           <VuePickerOption value="">Empty</VuePickerOption>
           <VuePickerOption
-            v-for="(opt, idx) in dynOpts2"
+            v-for="opt in dynOpts2"
             :key="opt.value"
             :value="opt.value"
-            :data-idx="idx"
+            :text="opt.text"
           >
             {{ opt.text }}
           </VuePickerOption>

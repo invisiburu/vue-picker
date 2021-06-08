@@ -17,10 +17,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useOptionsAsChild } from '../composables/useOptions.js'
 import { useDropdownAsChild } from '../composables/useDropdown.js'
-// TODO: refactor provide-inject https://v3.vuejs.org/guide/composition-api-provide-inject.html
-// TODO: cleanup comments: https://github.com/aMarCruz/rollup-plugin-cleanup
 // TODO: unit tests
-// TODO: test optHtml, optTxt, props reactivity
 
 export default {
   name: 'VuePickerOption',
@@ -42,11 +39,11 @@ export default {
       value: props.value,
       optHtml: computed(() => {
         const btnHtml = btnRef.value && btnRef.value.innerHTML
-        return props.text.value || btnHtml || props.value.value
+        return props.text || btnHtml || props.value
       }),
       optTxt: computed(() => {
         const btnText = btnRef.value && btnRef.value.innerText
-        return props.text.value || btnText || props.value.value
+        return props.text || btnText || props.value
       }
       ),
       setIsSelected: (val) => { isSelected.value = val },
