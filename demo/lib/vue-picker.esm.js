@@ -382,8 +382,6 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
 script$1.render = render$1;
 script$1.__file = "src/components/VuePicker.vue";
 
-// TODO: unit tests
-
 var script = {
   name: 'VuePickerOption',
 
@@ -449,11 +447,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 script.render = render;
 script.__file = "src/components/VuePickerOption.vue";
 
-function install (Vue) {
+function install (vm) {
   if (install.installed) { return }
   install.installed = true;
-  Vue.component('VuePicker', script$1);
-  Vue.component('VuePickerOption', script);
+  vm.component('VuePicker', script$1);
+  vm.component('VuePickerOption', script);
 }
 
 if (typeof window !== 'undefined') {

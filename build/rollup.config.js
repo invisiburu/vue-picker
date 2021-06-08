@@ -10,7 +10,7 @@ export default {
   output: {
     name: 'VuePicker',
     exports: 'named',
-    globals: { 'vue': 'Vue' }, // try remove
+    globals: { 'vue': 'Vue' },
   },
   external: ['vue'],
   plugins: [

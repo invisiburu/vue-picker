@@ -48,16 +48,27 @@ See the demo sources in [demo/](demo/)
 ## Installation
 ### Using unpkg:
 ```html
-<script src="https://unpkg.com/vue"></script>
-<script src="https://unpkg.com/@invisiburu/vue-picker"></script>
-<!-- optional css -->
-<link rel="stylesheet" href="https://unpkg.com/@invisiburu/vue-picker/dist/vue-picker.min.css">
+<head>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/@invisiburu/vue-picker"></script>
+  <!-- optional css -->
+  <link rel="stylesheet" href="https://unpkg.com/@invisiburu/vue-picker/dist/vue-picker.min.css">
+</head>
 
 <body>
-  <div id="#app"></div>
-  <!-- ... -->
-
+  <div id="app"></div>
   <script>
+    const App = {
+      template:
+        '<div>' +
+          '<h3>Hello world</h3>' +
+          '<VuePicker v-model="mv">' +
+            '<VuePickerOption value="opt0">Option 0</VuePickerOption>' +
+            '<VuePickerOption value="opt1">Option 1</VuePickerOption>' +
+          '</VuePicker>' +
+        '</div>',
+      data: function () { return { mv: 'opt1' } },
+    }
     const app = Vue.createApp(App)
     app.use(window.VuePicker)
     app.mount('#app')
