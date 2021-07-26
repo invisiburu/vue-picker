@@ -1,5 +1,11 @@
 # vue-picker
 
+![version](https://badgen.net/github/tag/invisiburu/vue-picker)
+![min size](https://badgen.net/bundlephobia/min/@invisiburu/vue-picker)
+![minzip size](https://badgen.net/bundlephobia/minzip/@invisiburu/vue-picker)
+![deps count](https://badgen.net/bundlephobia/dependency-count/@invisiburu/vue-picker)
+![tree shaking](https://badgen.net/bundlephobia/tree-shaking/@invisiburu/vue-picker)
+
 A native-like select field, but better.
 
 Mostly behaves like native `<select>` but accepts custom markup for the options
@@ -8,7 +14,8 @@ and the opener button.
 The options are navigatable from the keyboard. The opener text is easily
 customizable.
 
-This package currently works with Vue 2 versions only.
+The package versions of 2 and higher work with Vue3. For Vue2, use prior
+versions of the package.
 
 ## Demo
 See the demo: https://invisiburu.github.io/vue-picker/
