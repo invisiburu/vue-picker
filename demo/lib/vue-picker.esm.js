@@ -297,7 +297,7 @@ var script$1 = {
 
     onBeforeUnmount(function () {
       keyboard.unlistenOn(openerRef.value);
-      keyboard.unlisten(document);
+      keyboard.unlistenOn(document);
     });
 
     var _emitModelValue = function (val) {

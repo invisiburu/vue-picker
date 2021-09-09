@@ -103,7 +103,7 @@ export default {
 
     onBeforeUnmount(() => {
       keyboard.unlistenOn(openerRef.value)
-      keyboard.unlisten(document)
+      keyboard.unlistenOn(document)
     })
 
     const _emitModelValue = (val = _curOptVal()) => {
