@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2021-09-09
+### Fixed
+- onBeforeUnmount unlisten() fix
+- NPM audit issues
+
 ## [2.0.2] - 2021-06-09
 ### Fixed
 - NPM audit issues
@@ -71,7 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README.md
 - LICENSE
 
-[UNRELEASED]: https://github.com/invisiburu/vue-picker/compare/v2.0.2...HEAD
+[UNRELEASED]: https://github.com/invisiburu/vue-picker/compare/v2.0.3...HEAD
+[2.0.3]: https://github.com/invisiburu/vue-picker/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/invisiburu/vue-picker/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/invisiburu/vue-picker/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/invisiburu/vue-picker/compare/v1.1.2...v2.0.0

@@ -1,4 +1,4 @@
-import { inject, ref, provide, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, computed, openBlock, createBlock, createVNode, renderSlot, withDirectives, vShow, withKeys, withModifiers } from 'vue';
+import { inject, ref, provide, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, withDirectives, vShow, withKeys, withModifiers } from 'vue';
 
 function useDropdown () {
   var isShown = ref(false);
@@ -297,7 +297,7 @@ var script$1 = {
 
     onBeforeUnmount(function () {
       keyboard.unlistenOn(openerRef.value);
-      keyboard.unlisten(document);
+      keyboard.unlistenOn(document);
     });
 
     var _emitModelValue = function (val) {
@@ -331,26 +331,28 @@ var script$1 = {
   },
 };
 
-var _hoisted_1 = /*#__PURE__*/createVNode("i", { class: "vue-picker__opener-ico" }, null, -1 /* HOISTED */);
-var _hoisted_2 = {
+var _hoisted_1$1 = ["disabled"];
+var _hoisted_2 = ["innerHTML"];
+var _hoisted_3 = /*#__PURE__*/createElementVNode("i", { class: "vue-picker__opener-ico" }, null, -1 /* HOISTED */);
+var _hoisted_4 = {
   ref: "dropdownRef",
   class: "vue-picker__dropdown"
 };
 
 function render$1(_ctx, _cache, $props, $setup, $data, $options) {
-  return (openBlock(), createBlock("div", {
+  return (openBlock(), createElementBlock("div", {
     ref: "dropdownClickOutRef",
-    class: ["vue-picker", {
+    class: normalizeClass(["vue-picker", {
       'vue-picker_open': $setup.dropdownIsShown,
       'vue-picker_disabled': $props.isDisabled,
       'vue-picker_has-val': $props.placeholder ? $props.modelValue : $setup.curOptVal,
-    }]
+    }])
   }, [
-    createVNode("button", {
+    createElementVNode("button", {
       ref: "openerRef",
       class: "vue-picker__opener",
       type: "button",
-      onClick: _cache[1] || (_cache[1] = function ($event) { return ($setup.dropdownToggle()); }),
+      onClick: _cache[0] || (_cache[0] = function ($event) { return ($setup.dropdownToggle()); }),
       disabled: $props.isDisabled
     }, [
       renderSlot(_ctx.$slots, "opener", {
@@ -360,16 +362,16 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
           opt: $setup.curOpt,
         }
       }, function () { return [
-        createVNode("span", {
+        createElementVNode("span", {
           class: "vue-picker__opener-txt",
           innerHTML: $setup.openerHtml
-        }, null, 8 /* PROPS */, ["innerHTML"])
+        }, null, 8 /* PROPS */, _hoisted_2)
       ]; }),
       renderSlot(_ctx.$slots, "openerIco", {}, function () { return [
-        _hoisted_1
+        _hoisted_3
       ]; })
-    ], 8 /* PROPS */, ["disabled"]),
-    withDirectives(createVNode("div", _hoisted_2, [
+    ], 8 /* PROPS */, _hoisted_1$1),
+    withDirectives(createElementVNode("div", _hoisted_4, [
       renderSlot(_ctx.$slots, "dropdownInner", {}, function () { return [
         renderSlot(_ctx.$slots, "default")
       ]; })
@@ -430,18 +432,20 @@ var script = {
   },
 };
 
+var _hoisted_1 = ["disabled", "data-value"];
+
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (openBlock(), createBlock("button", {
+  return (openBlock(), createElementBlock("button", {
     ref: "btnRef",
-    class: ["vue-picker-option", { 'vue-picker-option_cur': $setup.isSelected }],
+    class: normalizeClass(["vue-picker-option", { 'vue-picker-option_cur': $setup.isSelected }]),
     type: "button",
-    onClick: _cache[1] || (_cache[1] = function ($event) { return ($setup.selectMyValue($event)); }),
-    onKeydown: _cache[2] || (_cache[2] = withKeys(withModifiers(function () {}, ["prevent","stop"]), ["space"])),
+    onClick: _cache[0] || (_cache[0] = function ($event) { return ($setup.selectMyValue($event)); }),
+    onKeydown: _cache[1] || (_cache[1] = withKeys(withModifiers(function () {}, ["prevent","stop"]), ["space"])),
     disabled: $props.isDisabled,
     "data-value": $props.value
   }, [
     renderSlot(_ctx.$slots, "default")
-  ], 42 /* CLASS, PROPS, HYDRATE_EVENTS */, ["disabled", "data-value"]))
+  ], 42 /* CLASS, PROPS, HYDRATE_EVENTS */, _hoisted_1))
 }
 
 script.render = render;
