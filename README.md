@@ -1,12 +1,12 @@
 # vue-picker
 
+A native-like select field, but better.
+
 ![version](https://badgen.net/github/tag/invisiburu/vue-picker)
 ![min size](https://badgen.net/bundlephobia/min/@invisiburu/vue-picker)
 ![minzip size](https://badgen.net/bundlephobia/minzip/@invisiburu/vue-picker)
 ![deps count](https://badgen.net/bundlephobia/dependency-count/@invisiburu/vue-picker)
 ![tree shaking](https://badgen.net/bundlephobia/tree-shaking/@invisiburu/vue-picker)
-
-A native-like select field, but better.
 
 Mostly behaves like native `<select>` but accepts custom markup for the options
 and the opener button.
