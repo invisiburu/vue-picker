@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2021-11-18
+### Fixed
+- Focus of null `openerRef` issue
+
 ## [2.0.4] - 2021-09-25
 ### Fixed
 - Readme npm preview fix
@@ -80,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README.md
 - LICENSE
 
-[UNRELEASED]: https://github.com/invisiburu/vue-picker/compare/v2.0.4...HEAD
+[UNRELEASED]: https://github.com/invisiburu/vue-picker/compare/v2.0.5...HEAD
+[2.0.5]: https://github.com/invisiburu/vue-picker/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/invisiburu/vue-picker/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/invisiburu/vue-picker/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/invisiburu/vue-picker/compare/v2.0.1...v2.0.2

@@ -286,12 +286,12 @@ var script$1 = {
 
       dropdown.onHide(function (isOuterClick) {
         keyboard.unlistenOn(document);
-        nextTick(function () { return openerRef.value.focus(); });
+        nextTick(function () { return openerRef.value && openerRef.value.focus(); });
         _emitModelValue();
         emit('close', isOuterClick);
       });
 
-      if (isAutofocus.value) { openerRef.value.focus(); }
+      if (isAutofocus.value) { openerRef.value && openerRef.value.focus(); }
       if (modelValue.value) { options.selectByValue(modelValue.value); }
     });
 

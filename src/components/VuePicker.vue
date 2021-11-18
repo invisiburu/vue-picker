@@ -92,12 +92,12 @@ export default {
 
       dropdown.onHide((isOuterClick) => {
         keyboard.unlistenOn(document)
-        nextTick(() => openerRef.value.focus())
+        nextTick(() => openerRef.value && openerRef.value.focus())
         _emitModelValue()
         emit('close', isOuterClick)
       })
 
-      if (isAutofocus.value) { openerRef.value.focus() }
+      if (isAutofocus.value) { openerRef.value && openerRef.value.focus() }
       if (modelValue.value) { options.selectByValue(modelValue.value) }
     })
 
