@@ -215,7 +215,7 @@ Accepts a function like the following:
 function onKeyDown (event: KeyboardEvent, dropdown: any, options: any) => boolean
 ```
 
-The listener if fired in two cases:
+The listener is fired in two cases:
 1. When the dropdown in open
 2. When the dropdown is closed but the opener is focused
 
