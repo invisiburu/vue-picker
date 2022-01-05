@@ -2,12 +2,15 @@ import { ref, onUnmounted, provide, inject } from 'vue'
 
 export function useDropdown () {
   const isShown = ref(false)
-  const clickOutRef = ref()
 
   let _unlistenOuterClick = () => { }
   let _onShowSubs = []
   let _onHideSubs = []
-  const _unsubs = []
+
+  let _clickOutTarget
+  const useClickOutTarget = (el) => {
+    _clickOutTarget = el
+  }
 
   const toggle = () => {
     isShown.value ? hide() : show()
@@ -15,7 +18,7 @@ export function useDropdown () {
 
   const show = () => {
     isShown.value = true
-    _unlistenOuterClick = _onClickOut(clickOutRef.value, () => hide(true))
+    _unlistenOuterClick = _onClickOut(_clickOutTarget, () => hide(true))
     _onShowSubs.forEach(cb => cb())
   }
 
@@ -27,33 +30,34 @@ export function useDropdown () {
 
   const onShow = (cb) => {
     _onShowSubs.push(cb)
-    _unsubs.push(() => {
+    return () => {
       _onShowSubs = _onShowSubs.filter(el => el !== cb)
-    })
+    }
   }
 
   const onHide = (cb) => {
     _onHideSubs.push(cb)
-    _unsubs.push(() => {
+    return () => {
       _onHideSubs = _onHideSubs.filter(el => el !== cb)
-    })
+    }
   }
 
   provide('dropdownHide', () => hide())
 
   onUnmounted(() => {
     _unlistenOuterClick()
-    _unsubs.forEach(unsub => unsub())
+    _onShowSubs = []
+    _onHideSubs = []
   })
 
   return {
     isShown,
-    clickOutRef,
     toggle,
     show,
     hide,
     onShow,
     onHide,
+    useClickOutTarget,
   }
 }
 

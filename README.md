@@ -164,12 +164,14 @@ app.component('VuePickerOption', VuePickerOption)
 ## Api
 ### `VuePicker`
 #### Props:
-- `isAutofocus` - focus the opener on mount.
-- `isDisabled` - disable the component.
-- `value` - the value, should be a string. The behaviour is not defined for
+- `modelValue` - the value, should be a string. The behaviour is not defined for
   values that do not exist within provided options.
 - `placeholder` - a text to show when `value` is null, undefined or an
   empty string.
+- `isAutofocus` - focus the opener on mount.
+- `isDisabled` - disable the component.
+- `onKeyDown` - accepts a function to run before the default key-down listener.
+  Please see the [onKeyDown()](#onkeydown-prop) section for more details
 #### Emitted events:
 - `input` - an option selected. Carries the new value to assign.
 - `open` - dropdown open.
@@ -207,6 +209,19 @@ slot.
   Mostly the same as `text` param of the `opener` slot but does not respect
   `placeholder` attr of the picker.
 
+### `onKeyDown prop`
+Accepts a function like the following:
+```ts
+function onKeyDown (event: KeyboardEvent, dropdown: any, options: any) => boolean
+```
+
+The listener if fired in two cases:
+1. When the dropdown in open
+2. When the dropdown is closed but the opener is focused
+
+Return `false` from your `onKeyDown()` function to prevent the default
+key-down handler.
+
 ## Issues
 In case of a bug or a suggestion, please report on the [Issues page](https://github.com/invisiburu/vue-picker/issues)
 or contact me by email.
@@ -215,7 +230,8 @@ or contact me by email.
 Check the changes in [CHANGELOG.md](CHANGELOG.md)
 
 ## TODO
-- JSDoc generated docs
+- TS definitions
+- Better onKeyDown description
 - Unit tests
 - Search
 - Handle keys: Page down, Page up

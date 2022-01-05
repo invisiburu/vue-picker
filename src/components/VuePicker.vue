@@ -1,6 +1,6 @@
 <template>
   <div
-    ref="dropdownClickOutRef"
+    ref="rootRef"
     class="vue-picker"
     :class="{
       'vue-picker_open': dropdownIsShown,
@@ -59,16 +59,18 @@ export default {
     placeholder: { type: String, default: '' },
     isDisabled: { type: Boolean, default: false },
     isAutofocus: { type: Boolean, default: false },
+    onKeyDown: { type: Function, default: undefined },
   },
 
   setup (props, { emit }) {
     const { modelValue, placeholder, isAutofocus } = toRefs(props)
+    const rootRef = ref()
     const openerRef = ref()
     const dropdownRef = ref()
 
     const dropdown = useDropdown()
     const options = useOptions(dropdownRef)
-    const keyboard = useKeyboard(dropdown, options)
+    const keyboard = useKeyboard(dropdown, options, props.onKeyDown)
 
     options.onSelect((value) => {
       if (dropdown.isShown.value) return
@@ -80,6 +82,7 @@ export default {
     onMounted(() => {
       keyboard.listenOn(openerRef.value)
 
+      dropdown.useClickOutTarget(rootRef.value)
       dropdown.onShow(() => {
         keyboard.listenOn(document)
         if (options.current.value) {
@@ -89,7 +92,6 @@ export default {
         }
         emit('open')
       })
-
       dropdown.onHide((isOuterClick) => {
         keyboard.unlistenOn(document)
         nextTick(() => openerRef.value && openerRef.value.focus())
@@ -116,10 +118,10 @@ export default {
     }
 
     return {
+      rootRef,
       openerRef,
       dropdownRef,
       dropdownIsShown: dropdown.isShown,
-      dropdownClickOutRef: dropdown.clickOutRef,
       dropdownToggle: () => dropdown.toggle(),
       curOpt: options.current,
       curOptVal: computed(() => _curOptVal()),

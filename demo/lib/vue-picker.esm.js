@@ -1,13 +1,16 @@
-import { inject, ref, provide, onUnmounted, onMounted, onUpdated, nextTick, toRefs, watch, onBeforeUnmount, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, withDirectives, vShow, withKeys, withModifiers } from 'vue';
+import { inject, ref, provide, onUnmounted, onMounted, onUpdated, nextTick, onBeforeUnmount, toRefs, watch, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, withDirectives, vShow, withKeys, withModifiers } from 'vue';
 
 function useDropdown () {
   var isShown = ref(false);
-  var clickOutRef = ref();
 
   var _unlistenOuterClick = function () { };
   var _onShowSubs = [];
   var _onHideSubs = [];
-  var _unsubs = [];
+
+  var _clickOutTarget;
+  var useClickOutTarget = function (el) {
+    _clickOutTarget = el;
+  };
 
   var toggle = function () {
     isShown.value ? hide() : show();
@@ -15,7 +18,7 @@ function useDropdown () {
 
   var show = function () {
     isShown.value = true;
-    _unlistenOuterClick = _onClickOut(clickOutRef.value, function () { return hide(true); });
+    _unlistenOuterClick = _onClickOut(_clickOutTarget, function () { return hide(true); });
     _onShowSubs.forEach(function (cb) { return cb(); });
   };
 
@@ -29,33 +32,34 @@ function useDropdown () {
 
   var onShow = function (cb) {
     _onShowSubs.push(cb);
-    _unsubs.push(function () {
+    return function () {
       _onShowSubs = _onShowSubs.filter(function (el) { return el !== cb; });
-    });
+    }
   };
 
   var onHide = function (cb) {
     _onHideSubs.push(cb);
-    _unsubs.push(function () {
+    return function () {
       _onHideSubs = _onHideSubs.filter(function (el) { return el !== cb; });
-    });
+    }
   };
 
   provide('dropdownHide', function () { return hide(); });
 
   onUnmounted(function () {
     _unlistenOuterClick();
-    _unsubs.forEach(function (unsub) { return unsub(); });
+    _onShowSubs = [];
+    _onHideSubs = [];
   });
 
   return {
     isShown: isShown,
-    clickOutRef: clickOutRef,
     toggle: toggle,
     show: show,
     hide: hide,
     onShow: onShow,
     onHide: onHide,
+    useClickOutTarget: useClickOutTarget,
   }
 }
 
@@ -81,7 +85,14 @@ function useOptions (optsContRef) {
   var _nodes = [];
   var _nodesUpdateRequired = false;
   var _currentIdx = -1;
-  var _onSelect = function () { };
+
+  var _onSelectSubs = [];
+  function onSelect (cb) {
+    _onSelectSubs.push(cb);
+    return function () {
+      _onSelectSubs = _onSelectSubs.filter(function (el) { return el !== cb; });
+    }
+  }
 
   var selectByValue = function (value) {
     if ( value === void 0 ) value = '';
@@ -92,16 +103,20 @@ function useOptions (optsContRef) {
     if (current.value) { current.value.setIsSelected(false); }
 
     if (!opt) {
-      current.value = null;
-      _currentIdx = -1;
-      _onSelect(null);
+      selectNone();
       return
     }
 
     opt.setIsSelected(true);
     current.value = opt;
     _currentIdx = _getNodeIdx(opt.value);
-    _onSelect(opt.value);
+    _onSelectSubs.forEach(function (cb) { return cb(opt.value); });
+  };
+
+  var selectNone = function () {
+    current.value = null;
+    _currentIdx = -1;
+    _onSelectSubs.forEach(function (cb) { return cb(null); });
   };
 
   var selectNext = function (offset, startIdx) {
@@ -135,6 +150,7 @@ function useOptions (optsContRef) {
 
   onMounted(function () { return _updateNodes(); });
   onUpdated(function () { return nextTick(_updateNodes); });
+  onBeforeUnmount(function () { _onSelectSubs = []; });
 
   var _getNodeIdx = function (value) {
     for (var idx = 0; idx < _nodes.length; idx++) {
@@ -153,10 +169,9 @@ function useOptions (optsContRef) {
 
   return {
     current: current,
-    onSelect: function (cb) {
-    if ( cb === void 0 ) cb = function () { };
- _onSelect = cb; },
+    onSelect: onSelect,
     selectByValue: selectByValue,
+    selectNone: selectNone,
     selectNext: selectNext,
     selectPrev: selectPrev,
     selectFirst: selectFirst,
@@ -171,8 +186,11 @@ function useOptionsAsChild () {
   }
 }
 
-function useKeyboard (dropdown, options) {
-  var listener = function (event) { _onKeyDown(dropdown, options, event); };
+function useKeyboard (dropdown, options, customOnKeyDown) {
+  var listener = function (event) {
+    if (customOnKeyDown && !customOnKeyDown(event, dropdown, options)) { return }
+    _onKeyDown(event, dropdown, options);
+  };
 
   var listenOn = function (htmlEl) {
     htmlEl.addEventListener('keydown', listener);
@@ -185,7 +203,7 @@ function useKeyboard (dropdown, options) {
   return { listenOn: listenOn, unlistenOn: unlistenOn }
 }
 
-function _onKeyDown (dropdown, options, event) {
+function _onKeyDown (event, dropdown, options) {
   switch (event.key) {
     case 'Esc':
     case 'Escape':
@@ -248,6 +266,7 @@ var script$1 = {
     placeholder: { type: String, default: '' },
     isDisabled: { type: Boolean, default: false },
     isAutofocus: { type: Boolean, default: false },
+    onKeyDown: { type: Function, default: undefined },
   },
 
   setup: function setup (props, ref$1) {
@@ -257,12 +276,13 @@ var script$1 = {
     var modelValue = ref$2.modelValue;
     var placeholder = ref$2.placeholder;
     var isAutofocus = ref$2.isAutofocus;
+    var rootRef = ref();
     var openerRef = ref();
     var dropdownRef = ref();
 
     var dropdown = useDropdown();
     var options = useOptions(dropdownRef);
-    var keyboard = useKeyboard(dropdown, options);
+    var keyboard = useKeyboard(dropdown, options, props.onKeyDown);
 
     options.onSelect(function (value) {
       if (dropdown.isShown.value) { return }
@@ -274,6 +294,7 @@ var script$1 = {
     onMounted(function () {
       keyboard.listenOn(openerRef.value);
 
+      dropdown.useClickOutTarget(rootRef.value);
       dropdown.onShow(function () {
         keyboard.listenOn(document);
         if (options.current.value) {
@@ -283,7 +304,6 @@ var script$1 = {
         }
         emit('open');
       });
-
       dropdown.onHide(function (isOuterClick) {
         keyboard.unlistenOn(document);
         nextTick(function () { return openerRef.value && openerRef.value.focus(); });
@@ -312,10 +332,10 @@ var script$1 = {
     };
 
     return {
+      rootRef: rootRef,
       openerRef: openerRef,
       dropdownRef: dropdownRef,
       dropdownIsShown: dropdown.isShown,
-      dropdownClickOutRef: dropdown.clickOutRef,
       dropdownToggle: function () { return dropdown.toggle(); },
       curOpt: options.current,
       curOptVal: computed(function () { return _curOptVal(); }),
@@ -341,7 +361,7 @@ var _hoisted_4 = {
 
 function render$1(_ctx, _cache, $props, $setup, $data, $options) {
   return (openBlock(), createElementBlock("div", {
-    ref: "dropdownClickOutRef",
+    ref: "rootRef",
     class: normalizeClass(["vue-picker", {
       'vue-picker_open': $setup.dropdownIsShown,
       'vue-picker_disabled': $props.isDisabled,

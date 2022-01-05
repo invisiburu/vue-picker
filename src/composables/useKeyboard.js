@@ -1,5 +1,8 @@
-export function useKeyboard (dropdown, options) {
-  const listener = (event) => { _onKeyDown(dropdown, options, event) }
+export function useKeyboard (dropdown, options, customOnKeyDown) {
+  const listener = (event) => {
+    if (customOnKeyDown && !customOnKeyDown(event, dropdown, options)) return
+    _onKeyDown(event, dropdown, options)
+  }
 
   const listenOn = (htmlEl) => {
     htmlEl.addEventListener('keydown', listener)
@@ -12,7 +15,7 @@ export function useKeyboard (dropdown, options) {
   return { listenOn, unlistenOn }
 }
 
-function _onKeyDown (dropdown, options, event) {
+function _onKeyDown (event, dropdown, options) {
   switch (event.key) {
     case 'Esc':
     case 'Escape':

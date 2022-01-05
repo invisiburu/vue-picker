@@ -281,6 +281,30 @@
           <VuePickerOption value="val-8">Value 8</VuePickerOption>
         </VuePicker>
       </div>
+
+      <div class="demo__unit">
+        <p class="demo__lbl">Custom listener (val1)</p>
+        <VuePicker class="demo__picker" v-model="selVal1" :onKeyDown="customOnKeyDown">
+          <VuePickerOption value="">Empty</VuePickerOption>
+          <VuePickerOption value="" :isDisabled="true"
+            >Empty disabled</VuePickerOption
+          >
+          <VuePickerOption value="val-1">Value 1</VuePickerOption>
+          <VuePickerOption value="val-2">Value 2</VuePickerOption>
+          <VuePickerOption value="val-3">Value 3</VuePickerOption>
+          <VuePickerOption value="val-4" :isDisabled="true"
+            >Value 4 (disabled)</VuePickerOption
+          >
+          <VuePickerOption value="val-5" :isDisabled="true"
+            >Value 5 (disabled)</VuePickerOption
+          >
+          <VuePickerOption value="val-6">Value 6</VuePickerOption>
+          <VuePickerOption value="val-7" text="Hello"
+            >Custom text: Hello</VuePickerOption
+          >
+          <VuePickerOption value="val-8">Value 8</VuePickerOption>
+        </VuePicker>
+      </div>
     </div>
 
     <h3>Dynamic options:</h3>
@@ -405,6 +429,16 @@ export default {
 
     const isMounted = ref(false)
 
+    const customOnKeyDown = (event) => {
+      if (event.key === 'ArrowDown') {
+        alert('Arrow down is pressed! Preventing')
+        event.preventDefault()
+        event.stopPropagation()
+        return false
+      }
+      return true
+    }
+
     return {
       selVal1: ref(undefined),
       selVal2: ref('val-2'),
@@ -422,6 +456,7 @@ export default {
       genDynOpts2,
 
       isMounted,
+      customOnKeyDown,
     }
   }
 }

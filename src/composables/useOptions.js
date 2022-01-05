@@ -1,4 +1,4 @@
-import { inject, nextTick, onMounted, onUpdated, provide, ref } from 'vue'
+import { inject, nextTick, onBeforeUnmount, onMounted, onUpdated, provide, ref } from 'vue'
 
 export function useOptions (optsContRef) {
   const current = ref(null)
@@ -7,7 +7,14 @@ export function useOptions (optsContRef) {
   let _nodes = []
   let _nodesUpdateRequired = false
   let _currentIdx = -1
-  let _onSelect = () => { }
+
+  let _onSelectSubs = []
+  function onSelect (cb) {
+    _onSelectSubs.push(cb)
+    return () => {
+      _onSelectSubs = _onSelectSubs.filter(el => el !== cb)
+    }
+  }
 
   const selectByValue = (value = '') => {
     const opt = _options[value]
@@ -16,16 +23,20 @@ export function useOptions (optsContRef) {
     if (current.value) current.value.setIsSelected(false)
 
     if (!opt) {
-      current.value = null
-      _currentIdx = -1
-      _onSelect(null)
+      selectNone()
       return
     }
 
     opt.setIsSelected(true)
     current.value = opt
     _currentIdx = _getNodeIdx(opt.value)
-    _onSelect(opt.value)
+    _onSelectSubs.forEach(cb => cb(opt.value))
+  }
+
+  const selectNone = () => {
+    current.value = null
+    _currentIdx = -1
+    _onSelectSubs.forEach(cb => cb(null))
   }
 
   const selectNext = (offset = 1, startIdx = _currentIdx) => {
@@ -56,6 +67,7 @@ export function useOptions (optsContRef) {
 
   onMounted(() => _updateNodes())
   onUpdated(() => nextTick(_updateNodes))
+  onBeforeUnmount(() => { _onSelectSubs = [] })
 
   const _getNodeIdx = (value) => {
     for (let idx = 0; idx < _nodes.length; idx++) {
@@ -74,8 +86,9 @@ export function useOptions (optsContRef) {
 
   return {
     current,
-    onSelect: (cb = () => { }) => { _onSelect = cb },
+    onSelect,
     selectByValue,
+    selectNone,
     selectNext,
     selectPrev,
     selectFirst,
